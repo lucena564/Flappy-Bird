@@ -12,9 +12,13 @@
 from math import sqrt
 from random import randint
 import numpy as np
+from copy import deepcopy
 
 def relu(x):
     return np.maximum(0, x)
+
+def tanh(x):
+    return np.tanh(x)
 
 class Neuronio:
     def __init__(self, anterior):
@@ -57,69 +61,37 @@ class RedeNeural:
 
         self.flag_bias = incluir_bias
 
+    def copy(self):
+        return deepcopy(self)
+
     def set_sensores(self, altura, dist1, dist2):
         self.camada_entrada.neuronios[0].sensor = altura
         self.camada_entrada.neuronios[1].sensor = dist1
         self.camada_entrada.neuronios[2].sensor = dist2
 
     def predict(self):
-        # No futuro preciso fazer de forma recursiva
-        resultados = []
+        # No futuro preciso fazer de forma recursiva, mas por enquanto vou fazer de forma manual.
+        soma = 0
 
-        if self.flag_bias == False:
-            soma = 0
+        for i in range(self.qtd_camada_escondida): # 4 - Camada Escondida
+            for j in range(self.qtd_sensores):     # 3 - Camada de Entrada - Sensores
+                soma += self.camada_entrada.neuronios[j].sensor * self.camada_escondida.neuronios[i].peso[f"{j}"]
 
-            for i in range(self.qtd_camada_escondida): # 4 - Camada Escondida
-                for j in range(self.qtd_sensores):     # 3 - Camada de Entrada - Sensores
-                    soma += self.camada_entrada.neuronios[j].sensor * self.camada_escondida.neuronios[i].peso[f"{j}"]
+            # Vou guardar o resultado de cada neurônio da camada escondida em saída.
+            self.camada_escondida.neuronios[i].saida = tanh(soma + self.camada_escondida.neuronios[i].bias) # + self.camada_escondida.neuronios[i].bias
 
-                # Vou guardar o resultado de cada neurônio da camada escondida em saída.
-                self.camada_escondida.neuronios[i].saida = relu(soma)
+        # Agora vou executar os passos do último neuronio, a da camada de saída:
+        for i in range(self.qtd_camada_saida): # 1 - Camada de Saída
+            for j in range(self.qtd_camada_escondida):
+                soma += self.camada_escondida.neuronios[j].saida * self.camada_saida.neuronios[i].peso[f"{j}"]
 
-            # Agora vou executar os passos do último neuronio, a da camada de saída:
-            for i in range(self.qtd_camada_saida): # 1 - Camada de Saída
-                for j in range(self.qtd_camada_escondida):
-                    soma += self.camada_escondida.neuronios[j].saida * self.camada_saida.neuronios[i].peso[f"{j}"]
-
-                self.camada_saida.neuronios[i].saida = relu(soma)
+            self.camada_saida.neuronios[i].saida = tanh(soma + self.camada_saida.neuronios[i].bias) # + self.camada_saida.neuronios[i].bias
 
 
-        output = self.camada_saida.neuronios[0].saida
+        output = self.camada_saida.neuronios[0].saida + self.camada_saida.neuronios[0].bias
 
         if output > 0:
+            # print(output)
             return output
         else:
             return 0
-
-
-# passaro1 = RedeNeural(3, 4, 1)
-#
-# print("Pesos camada escondida:")
-#
-# print(passaro1.camada_escondida.neuronios[0].peso)
-# print(passaro1.camada_escondida.neuronios[1].peso)
-# print(passaro1.camada_escondida.neuronios[2].peso)
-# print(passaro1.camada_escondida.neuronios[3].peso)
-#
-# print("\nPeso saida:")
-#
-# print(passaro1.camada_saida.neuronios[0].peso)
-#
-#
-# """def get_peso(self):
-#     return self.peso
-#
-# def get_erro(self):
-#     return self.erro
-#
-# def get_saida(self):
-#     return self.saida
-#
-# def set_peso(self, peso):
-#     self.peso = peso
-#
-# def set_erro(self, erro):
-#     self.erro = erro
-#
-# def set_saida(self, saida):
-#     self.saida = saida"""

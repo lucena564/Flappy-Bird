@@ -1,6 +1,7 @@
 import pygame
 import os
 import random
+import time
 from IA_flappybird import *
 
 ia_jogando = True
@@ -185,13 +186,21 @@ def desenhar_tela(tela, passaros, canos, chao, pontos):
 
 
 def main():
+    # time = 0
+    # Talvez isso vá para uma função
+    ############################################################
     if ia_jogando:
         redes = []
         passaros = []
+        pontos_passaros = []
+        passaro_time = []
         for i in range(100):
             rede = RedeNeural(3, 5, 1)
-            redes.append(rede)
+            redes.append(rede.copy())
+            pontos_passaros.append(0)
             passaros.append(Passaro(230, 350))
+
+        # print("Pontuações dos Passaros antes:", [f"{valor:.2f}" for valor in pontos_passaros])
 
     else:
         passaros = [Passaro(230, 350)]
@@ -201,10 +210,12 @@ def main():
     tela = pygame.display.set_mode((TELA_LARGURA, TELA_ALTURA))
     pontos = 0
     relogio = pygame.time.Clock()
-
+    ############################################################
     rodando = True
-
+    
     while rodando:
+        inicio_iteracao = time.time()
+
         relogio.tick(30)
 
         # interação com o usuário
@@ -233,21 +244,29 @@ def main():
         for i, passaro in enumerate(passaros):
             passaro.mover()
             # Aumentar um pouco a fitness do passaro
-            # lista_genomas[i].fitness += 0.1
+            pontos_passaros[i] += 0.1 # Não faz sentido adicionar ponto aq, vai adicionar pra todo passaralho
             redes[i].set_sensores(passaro.y, abs(passaro.y - canos[indicie_cano].altura), abs(passaro.y - canos[indicie_cano].pos_base))
             output = redes[i].predict()
             # -1 e 1 -> se o output for > 0.5 ent o passaro pula
-            if output > 0.5:
+            if output > 10:
                 passaro.pular()
+
+            parcial_passaro = time.time()
+            tempo_decorrido = parcial_passaro - inicio_iteracao
 
             chao.mover()
 
+        # Vamos dar pontos aqui
         adicionar_cano = False
         remover_canos = []
         for cano in canos:
             for i, passaro in enumerate(passaros):
                 if cano.colidir(passaro):
                     passaros.pop(i)
+                    if ia_jogando:
+                        pontos_passaros[i] -= 1
+                        # passaros.pop(i)
+                        # redes.pop(i)
                 if not cano.passou and passaro.x > cano.x:
                     cano.passou = True
                     adicionar_cano = True
@@ -256,8 +275,11 @@ def main():
                 remover_canos.append(cano)
 
         if adicionar_cano:
-            pontos += 1
+            pontos += 1.
             canos.append(Cano(600))
+            for i in range(len(pontos_passaros)):
+                pontos_passaros[i] += 5
+
         for cano in remover_canos:
             canos.remove(cano)
 
@@ -265,8 +287,19 @@ def main():
             if (passaro.y + passaro.imagem.get_height()) > chao.y or passaro.y < 0:
                 passaros.pop(i)
 
+        # Preciso dar a pontuação do tempo decorrido e também da distância à boca do pilar.
+
+        # Preciso criar uma função que vai criar os novos passaros, a partir dos dois melhores.
+                # Uma vez que eu tiver os dois melhores, eu preciso criar uma função que vai gerar os novos passaros.
+                # Os novos passaros vão ser gerados mudando os pesos dos dois melhores passaros. Porém será uma mudança aleatória.
+                # 10% de chance de mudar o peso de um neurônio.
+                # Sua mudança pode variar de -10% a 10%
+
         desenhar_tela(tela, passaros, canos, chao, pontos)
 
+    # Suspeita que esses pontos estão ficando ordenados no vetor, porque? 
+    print("Pontuações dos Passaros:", [f"{valor:.2f}" for valor in pontos_passaros])
+    print("Número de Redes:", len(redes))
 
 if __name__ == '__main__':
     main()
