@@ -62,12 +62,12 @@ class Passaro:
         self.y += deslocamento
 
         # Angulo do passaro (fazer a animação)
-        if deslocamento < 0 or self.y < (self.altura + 50):
+        if deslocamento < 0 or self.y < (self.altura - 10):
             if self.angulo < self.ROTACAO_MAXIMA:
                 self.angulo = self.ROTACAO_MAXIMA
 
         else:
-            if self.angulo > -90:
+            if self.angulo > -60:
                 self.angulo -= self.VEL_ROTACAO
 
     def desenhar(self, tela):
@@ -182,7 +182,6 @@ def desenhar_tela(tela, passaros, canos, chao, pontos):
     chao.desenhar(tela)
     pygame.display.update()
 
-
 def main(genomas, config): # Fitness Function do neat
     global geracao
     geracao += 1
@@ -209,6 +208,7 @@ def main(genomas, config): # Fitness Function do neat
     relogio = pygame.time.Clock()
 
     rodando = True
+
     while rodando:
         relogio.tick(30)
 
@@ -218,6 +218,7 @@ def main(genomas, config): # Fitness Function do neat
                 rodando = False
                 pygame.quit()
                 quit()
+
             if not ia_jogando:
                 if evento.type == pygame.KEYDOWN:
                     if evento.key == pygame.K_SPACE:
@@ -225,7 +226,7 @@ def main(genomas, config): # Fitness Function do neat
                             passaro.pular()
 
         indicie_cano = 0
-        if len(passaros)>0:
+        if len(passaros) > 0:
             # Descobrir qual cano olhar
             if len(canos) > 1 and passaros[0].x > (canos[0].x + canos[0].CANO_TOPO.get_width()):
                 indicie_cano = 1
@@ -233,7 +234,7 @@ def main(genomas, config): # Fitness Function do neat
             rodando = False
             break
 
-        # mover as coisas
+        # Tomada de decisão dos passaros
         for i, passaro in enumerate(passaros):
             passaro.mover()
             # Aumentar um pouco a fitness do passaro
@@ -300,7 +301,7 @@ def rodar(caminho_config):
         main(None, None)
 
 if __name__ == '__main__':
-    caminho_config = "C:/Users/victo/Desktop/Flappy-Bird/config.txt"
+    caminho_config = r"C:\Users\Antonio Lucena\Desktop\Flappy-Bird\config.txt"
     # caminho = os.path.join(__file__)
     # caminho_config = os.path.join(caminho, 'config.txt')
     rodar(caminho_config)

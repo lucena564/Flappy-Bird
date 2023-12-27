@@ -1,10 +1,6 @@
 import pygame
 import os
 import random
-from IA_flappybird import *
-
-ia_jogando = True
-geracao = 0
 
 TELA_LARGURA = 500
 TELA_ALTURA = 800
@@ -166,6 +162,7 @@ class Chao:
         tela.blit(self.IMAGEM, (self.x1, self.y))
         tela.blit(self.IMAGEM, (self.x2, self.y))
 
+
 def desenhar_tela(tela, passaros, canos, chao, pontos):
     tela.blit(IMAGEM_BG, (0, 0))
     for passaro in passaros:
@@ -173,29 +170,14 @@ def desenhar_tela(tela, passaros, canos, chao, pontos):
     for cano in canos:
         cano.desenhar(tela)
 
-    texto = FONTE_PONTOS.render(f"Score: {pontos}", 1, (255, 255, 255))
+    texto = FONTE_PONTOS.render(f"Pontuação: {pontos}", 1, (255, 255, 255))
     tela.blit(texto, (TELA_LARGURA - 10 - texto.get_width(), 10))
-
-    if ia_jogando:
-        texto = FONTE_PONTOS.render(f"Geração: {geracao}", 1, (255, 255, 255))
-        tela.blit(texto, (10, 10))
-
     chao.desenhar(tela)
     pygame.display.update()
 
 
 def main():
-    if ia_jogando:
-        redes = []
-        passaros = []
-        for i in range(100):
-            rede = RedeNeural(3, 5, 1)
-            redes.append(rede)
-            passaros.append(Passaro(230, 350))
-
-    else:
-        passaros = [Passaro(230, 350)]
-
+    passaros = [Passaro(230, 350)]
     chao = Chao(730)
     canos = [Cano(700)]
     tela = pygame.display.set_mode((TELA_LARGURA, TELA_ALTURA))
@@ -203,7 +185,6 @@ def main():
     relogio = pygame.time.Clock()
 
     rodando = True
-
     while rodando:
         relogio.tick(30)
 
@@ -213,34 +194,15 @@ def main():
                 rodando = False
                 pygame.quit()
                 quit()
+            if evento.type == pygame.KEYDOWN:
+                if evento.key == pygame.K_SPACE:
+                    for passaro in passaros:
+                        passaro.pular()
 
-            if not ia_jogando:
-                if evento.type == pygame.KEYDOWN:
-                    if evento.key == pygame.K_SPACE:
-                        for passaro in passaros:
-                            passaro.pular()
-
-        indicie_cano = 0
-        if len(passaros) > 0:
-            # Descobrir qual cano olhar
-            if len(canos) > 1 and passaros[0].x > (canos[0].x + canos[0].CANO_TOPO.get_width()):
-                indicie_cano = 1
-        else:
-            rodando = False
-            break
-
-        # Tomada de decisão dos passaros
-        for i, passaro in enumerate(passaros):
+        # mover as coisas
+        for passaro in passaros:
             passaro.mover()
-            # Aumentar um pouco a fitness do passaro
-            # lista_genomas[i].fitness += 0.1
-            redes[i].set_sensores(passaro.y, abs(passaro.y - canos[indicie_cano].altura), abs(passaro.y - canos[indicie_cano].pos_base))
-            output = redes[i].predict()
-            # -1 e 1 -> se o output for > 0.5 ent o passaro pula
-            if output > 0.5:
-                passaro.pular()
-
-            chao.mover()
+        chao.mover()
 
         adicionar_cano = False
         remover_canos = []
