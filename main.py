@@ -2,6 +2,7 @@ import pygame
 import os
 import random
 import time
+# from charles_darwin import *
 from IA_flappybird import *
 
 ia_jogando = True
@@ -101,7 +102,6 @@ class Passaro:
     def get_mask(self):
         return pygame.mask.from_surface(self.imagem)
 
-
 class Cano:
     DISTANCIA = 200
     VELOCIDADE = 5
@@ -184,26 +184,42 @@ def desenhar_tela(tela, passaros, canos, chao, pontos):
     chao.desenhar(tela)
     pygame.display.update()
 
-
-def main():
-    # time = 0
+def main(primeira_geracao=True, redes=None):
     # Talvez isso vá para uma função
     ############################################################
-    if ia_jogando:
-        redes = []
-        passaros = []
-        pontos_passaros = []
-        passaro_time = []
-        for i in range(100):
-            rede = RedeNeural(3, 5, 1)
-            redes.append(rede.copy())
-            pontos_passaros.append(0)
-            passaros.append(Passaro(230, 350))
+    if primeira_geracao:
+        if ia_jogando:
+            redes = []
+            passaros = []
+            pontos_passaros = []
+            passaro_time = []
+            for i in range(100):
+                rede = RedeNeural(3, 5, 1)
+                redes.append(rede.copy())
+                pontos_passaros.append(0)
+                passaros.append(Passaro(230, 350))
 
-        # print("Pontuações dos Passaros antes:", [f"{valor:.2f}" for valor in pontos_passaros])
+            # print("Pontuações dos Passaros antes:", [f"{valor:.2f}" for valor in pontos_passaros])
+
+        else:
+            passaros = [Passaro(230, 350)]
 
     else:
-        passaros = [Passaro(230, 350)]
+        if ia_jogando:
+            passaros = []
+            pontos_passaros = []
+            passaro_time = []
+            for i in range(100):
+                # rede = RedeNeural(3, 5, 1)
+                # redes.append(rede.copy())
+                pontos_passaros.append(0)
+                passaros.append(Passaro(230, 350))
+
+            # print("Pontuações dos Passaros antes:", [f"{valor:.2f}" for valor in pontos_passaros])
+
+        else:
+            print("\nNão implementado ainda, prestar atenção nas gerações, linha 223")
+            return
 
     chao = Chao(730)
     canos = [Cano(700)]
@@ -245,10 +261,13 @@ def main():
             passaro.mover()
             # Aumentar um pouco a fitness do passaro
             pontos_passaros[i] += 0.1 # Não faz sentido adicionar ponto aq, vai adicionar pra todo passaralho
+
+            # Passando a leitura dos sensores
             redes[i].set_sensores(passaro.y, abs(passaro.y - canos[indicie_cano].altura), abs(passaro.y - canos[indicie_cano].pos_base))
+            
             output = redes[i].predict()
             # -1 e 1 -> se o output for > 0.5 ent o passaro pula
-            if output > 10:
+            if output > 0.5:
                 passaro.pular()
 
             parcial_passaro = time.time()
@@ -285,7 +304,7 @@ def main():
 
         for i, passaro in enumerate(passaros):
             if (passaro.y + passaro.imagem.get_height()) > chao.y or passaro.y < 0:
-                passaros.pop(i)
+                passaros.pop(i) # Remover o passaro - Verificar se ta certo
 
         # Preciso dar a pontuação do tempo decorrido e também da distância à boca do pilar.
 
@@ -298,8 +317,15 @@ def main():
         desenhar_tela(tela, passaros, canos, chao, pontos)
 
     # Suspeita que esses pontos estão ficando ordenados no vetor, porque? 
-    print("Pontuações dos Passaros:", [f"{valor:.2f}" for valor in pontos_passaros])
-    print("Número de Redes:", len(redes))
+    # print("Pontuações dos Passaros:", [f"{valor:.2f}" for valor in pontos_passaros])
+    # print("Número de Redes:", len(redes))
+
+    first_max_index = max(range(len(pontos_passaros)), key=pontos_passaros.__getitem__)
+    second_max_index = max((i for i, value in enumerate(pontos_passaros) if i != first_max_index), key=pontos_passaros.__getitem__)
+
+    redes, primeira_geracao = selecao_natural(redes[first_max_index], redes[second_max_index])
+    main(primeira_geracao, redes)
+
 
 if __name__ == '__main__':
     main()

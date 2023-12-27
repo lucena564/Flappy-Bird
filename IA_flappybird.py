@@ -95,3 +95,62 @@ class RedeNeural:
             return output
         else:
             return 0
+        
+def selecao_natural(rede1, rede2, qtd = 100):
+    flag_primeira_geracao = False
+    # Preciso criar uma função que vai criar os novos passaros, a partir dos dois melhores.
+        # Os melhores passaros são rede1 e rede2
+    
+    # Uma vez que eu tiver os dois melhores, eu preciso criar uma função que vai gerar os novos passaros.
+    # Os novos passaros vão ser gerados mudando os pesos dos dois melhores passaros. Porém será uma mudança aleatória.
+    qtd_novos1 = qtd//3
+    qtd_novos2 = qtd - qtd_novos1
+    qtd_novos3 = qtd - (qtd_novos1 + qtd_novos2)
+
+    novos = []
+    for i in range(qtd_novos1):
+        # Criar novas redes a partir da rede1
+        nova_rede = rede1 # Crio uma nova rede que vai ser uma cópia da rede1
+
+        # Quero acessar os pesos de nova_rede e mudar eles aleatoriamente.
+        for i in range(nova_rede.qtd_camada_escondida): # 4 - Camada Escondida
+            for j in range(nova_rede.qtd_sensores):     # 3 - Camada de Entrada - Sensores
+                # Quero interar sob a chave de pesos do dicionario peso
+                for chave_pesos in nova_rede.camada_escondida.neuronios[i].peso:
+                    # Quero por uma chance de 10% de mudar o peso
+                    chance = randint(0, 5) # Aqui vai determinar a porcentagem de mudança que eu quero por, no caso coloquei 20% (1 chance em 5)
+                    if chance == 4: # Escolhi um número aleatório
+                        porcentagem_de_mudanca = randint(0, 10)
+                        positivo_ou_negativo = randint(0, 1)
+                        if positivo_ou_negativo == 0:
+                            porcentagem_de_mudanca = -porcentagem_de_mudanca
+                        nova_rede.camada_escondida.neuronios[i].peso[chave_pesos] = nova_rede.camada_escondida.neuronios[i].peso[chave_pesos] + porcentagem_de_mudanca/100
+
+        novos.append(nova_rede)
+
+    for i in range(qtd_novos2):
+        # Criar novas redes a partir da rede2
+        nova_rede = rede2 # Crio uma nova rede que vai ser uma cópia da rede2
+
+        # Quero acessar os pesos de nova_rede e mudar eles aleatoriamente.
+        for i in range(nova_rede.qtd_camada_escondida): # 4 - Camada Escondida
+            for j in range(nova_rede.qtd_sensores):     # 3 - Camada de Entrada - Sensores
+                # Quero interar sob a chave de pesos do dicionario peso
+                for chave_pesos in nova_rede.camada_escondida.neuronios[i].peso:
+                    # Quero por uma chance de 20% de mudar o peso
+                    chance = randint(0, 5) # Aqui vai determinar a porcentagem de mudança que eu quero por, no caso coloquei 20% (1 chance em 5)
+                    if chance == 2: # Escolhi um número aleatório
+                        porcentagem_de_mudanca = randint(0, 10)
+                        positivo_ou_negativo = randint(0, 1)
+                        if positivo_ou_negativo == 0:
+                            porcentagem_de_mudanca = -porcentagem_de_mudanca
+                        nova_rede.camada_escondida.neuronios[i].peso[chave_pesos] = nova_rede.camada_escondida.neuronios[i].peso[chave_pesos] + porcentagem_de_mudanca/100
+
+        novos.append(nova_rede)
+
+    for i in range(qtd_novos3):
+        nova_rede = RedeNeural(3, 5, 1)
+        novos.append(nova_rede)
+
+    # Nessa etapa terei duas listas com novas redes, que são cópias das redes 1 e 2, porém com pesos aleatórios mudados um pouco.
+    return novos, flag_primeira_geracao
