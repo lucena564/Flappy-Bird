@@ -239,6 +239,10 @@ def main(genomas, config): # Fitness Function do neat
             passaro.mover()
             # Aumentar um pouco a fitness do passaro
             lista_genomas[i].fitness += 0.1
+
+
+
+            # QUERO VERIFICAR ESSA FUNÇÃO AQUI, COMPARAR COM A MINHA, PARAMETROS E TUDO MAIS
             output = redes[i].activate((passaro.y,
                                           abs(passaro.y - canos[indicie_cano].altura),
                                           abs(passaro.y - canos[indicie_cano].pos_base)))
