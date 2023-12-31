@@ -1,6 +1,10 @@
 # Flappy-Bird com IA </br>
 
-
+<p align="center">
+  <a href="https://github.com/lucena564/Flappy-Bird/blob/main/images_gifs_readme/Flappy-Bird-gif.gif">
+    <img src="https://github.com/lucena564/Flappy-Bird/raw/main/images_gifs_readme/Flappy-Bird-gif.gif" alt="GIF do Flappy Bird" height="300">
+  </a>
+</p>
 
 Sempre quis por em prática conceitos que são aprendidos durante o estudo na área de aprendzagem de máquina. </br>
 
@@ -27,4 +31,5 @@ Para isso foi necessário primeiro recriar o jogo do Flappy Bird e depois implem
   & python main.py
 ```
 
-Os 
+Depois de um tempo treinando teremos esse resultado:
+
