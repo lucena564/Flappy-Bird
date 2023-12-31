@@ -46,6 +46,7 @@ Alguns detalhes que utilizei para esta implementação: </br>
 * Função de ativação tangente hiperbólica para a camada de saída.</br></br>
 
 Algumas tarefas que farei no futuro:</br>
+- [ ] Adicionar um requirements.txt
 - [ ] Investigar o motivo de alguns pesos gerarem passaros que vão para full para cima e outros para baixo.
 - [ ] Implementar uma estrutura que cria e deixa visível a estrutura da IA (camada de entrada, camada escondida e a camada de saída).
 - [ ] Tirar todos os hard coded que deixei.
