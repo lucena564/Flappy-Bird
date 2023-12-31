@@ -27,6 +27,7 @@ class Neuronio:
     def __init__(self, anterior):
         if (anterior == -1):
             self.peso = None
+
         else:
             # preciso criar um dicionário para guardar os meus pesos.
             self.peso = {}
@@ -42,12 +43,6 @@ class Camada:
     def __init__(self, quantidade_neuronios, anterior=-1, incluir_bias=True):
         self.neuronios = [Neuronio(anterior) for _ in
                           range(quantidade_neuronios)]  # Cria uma lista com vários neurônios na camada
-
-        # if incluir_bias:
-        #     self.neuronios.append(Neuronio())  # Adiciona o neurônio de viés
-        #
-        # self.quantidade_neuronios = quantidade_neuronios + 1 if incluir_bias else quantidade_neuronios
-
 
 class RedeNeural:
     def __init__(self, sensores=3, camada_escondida=4, camada_saida=1, incluir_bias=False):
@@ -99,48 +94,63 @@ class RedeNeural:
             return 0
 
 
-def selecao_natural(rede1, qtd=100):
+def selecao_natural(rede1, flag_peso_aleatorio_ruim=False, qtd=100):
     flag_primeira_geracao = False
-    # Preciso criar uma função que vai criar os novos passaros, a partir dos dois melhores.
-    # Os melhores passaros são rede1 e rede2
 
-    # Uma vez que eu tiver os dois melhores, eu preciso criar uma função que vai gerar os novos passaros.
-    # Os novos passaros vão ser gerados mudando os pesos dos dois melhores passaros. Porém será uma mudança aleatória.
-    qtd_novos1 = qtd  # // 2
-    qtd_novos2 = qtd - qtd_novos1
-    # qtd_novos3 = qtd - (qtd_novos1 + qtd_novos2)
+    # Se o peso aleatório criado for ruim = True
+    if not flag_peso_aleatorio_ruim:
+        # Preciso criar uma função que vai criar os novos passaros, a partir dos dois melhores.
+        # Os melhores passaros são rede1 e rede2
 
-    novos = []
-    # novos.append(rede1)
-    # qtd -= 1
-    # novos.append(rede2)
-    # qtd -= 2
-    for i in range(100):
-        # Criar novas redes a partir da rede1
-        nova_rede = deepcopy(rede1)  # Copia a rede1
+        # Uma vez que eu tiver os dois melhores, eu preciso criar uma função que vai gerar os novos passaros.
+        # Os novos passaros vão ser gerados mudando os pesos dos dois melhores passaros. Porém será uma mudança aleatória.
+        qtd_novos1 = qtd  # // 2
+        qtd_novos2 = qtd - qtd_novos1
+        # qtd_novos3 = qtd - (qtd_novos1 + qtd_novos2)
 
-        # Quero acessar os pesos de nova_rede e mudar eles aleatoriamente.
-        for i in range(nova_rede.qtd_camada_escondida):  # 4 - Camada Escondida
-            for j in range(nova_rede.qtd_sensores):      # 3 - Camada de Entrada - Sensores
-                # Quero interar sob a chave de pesos do dicionario peso
-                for chave_pesos in nova_rede.camada_escondida.neuronios[i].peso:
-                    porcentagem_de_mudanca = randint(0, 100)
-                    positivo_ou_negativo = randint(0, 1)
-                    if positivo_ou_negativo == 0:
-                        porcentagem_de_mudanca = -porcentagem_de_mudanca
-                    nova_rede.camada_escondida.neuronios[i].peso[chave_pesos] = nova_rede.camada_escondida.neuronios[i].peso[chave_pesos] + (nova_rede.camada_escondida.neuronios[i].peso[chave_pesos])*porcentagem_de_mudanca / 100
+        novos = []
+        # novos.append(rede1)
+        # qtd -= 1
+        # novos.append(rede2)
+        # qtd -= 2
+        for i in range(100):
+            # Criar novas redes a partir da rede1
+            nova_rede = deepcopy(rede1)  # Copia a rede1
 
-        # novos.append(nova_rede)
+            # Quero acessar os pesos de nova_rede e mudar eles aleatoriamente.
+            for i in range(nova_rede.qtd_camada_escondida):  # 4 - Camada Escondida
+                for j in range(nova_rede.qtd_sensores):      # 3 - Camada de Entrada - Sensores
+                    # Quero interar sob a chave de pesos do dicionario peso
+                    for chave_pesos in nova_rede.camada_escondida.neuronios[i].peso:
+                        porcentagem_de_mudanca = randint(0, 100)
+                        positivo_ou_negativo = randint(0, 1)
+                        if positivo_ou_negativo == 0:
+                            porcentagem_de_mudanca = -porcentagem_de_mudanca
+                        nova_rede.camada_escondida.neuronios[i].peso[chave_pesos] = nova_rede.camada_escondida.neuronios[i].peso[chave_pesos] + (nova_rede.camada_escondida.neuronios[i].peso[chave_pesos])*porcentagem_de_mudanca / 100
 
-        # Preciso criar um laço que mude o bias dos neurônios da camada escondida
-        for i in range(nova_rede.qtd_camada_escondida):
-            porcentagem_de_mudanca = randint(0, 15)
-            positivo_ou_negativo = randint(0, 1)
-            if positivo_ou_negativo == 0:
-                porcentagem_de_mudanca = -porcentagem_de_mudanca
-            nova_rede.camada_escondida.neuronios[i].bias = nova_rede.camada_escondida.neuronios[i].bias + (nova_rede.camada_escondida.neuronios[i].bias)*(porcentagem_de_mudanca / 100)
+            # novos.append(nova_rede)
 
-        novos.append(nova_rede)
+            # Preciso criar um laço que mude o bias dos neurônios da camada escondida
+            for i in range(nova_rede.qtd_camada_escondida):
+                porcentagem_de_mudanca = randint(0, 15)
+                positivo_ou_negativo = randint(0, 1)
+                if positivo_ou_negativo == 0:
+                    porcentagem_de_mudanca = -porcentagem_de_mudanca
+                nova_rede.camada_escondida.neuronios[i].bias = nova_rede.camada_escondida.neuronios[i].bias + (nova_rede.camada_escondida.neuronios[i].bias)*(porcentagem_de_mudanca / 100)
 
-    # Nessa etapa terei duas listas com novas redes, que são cópias das redes 1 e 2, porém com pesos aleatórios mudados um pouco.
+            novos.append(nova_rede)
+
+        # Nessa etapa terei duas listas com novas redes, que são cópias das redes 1 e 2, porém com pesos aleatórios mudados um pouco.
+
+    else:
+        passaros = []
+        novos = []
+
+        # Testar
+        pontos_passaros = []
+        passaro_time = []
+        for i in range(100):
+            novo = RedeNeural(3, 5, 1)
+            novos.append(novo)
+
     return novos, flag_primeira_geracao

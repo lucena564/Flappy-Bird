@@ -248,7 +248,7 @@ def main(geracao, primeira_geracao=True, redes=None):
     while rodando:
         relogio.tick(30)
 
-        # interação com o usuário
+        # Interação com o usuário
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 rodando = False
@@ -369,12 +369,14 @@ def main(geracao, primeira_geracao=True, redes=None):
             aux = item[0]
 
     print("Peguei a pontuação: ", aux)
-        # else:
-        #    if item[0] > segundo_maior:
-        #        second_max_index = item[1]
 
-    redes, primeira_geracao = selecao_natural(first_max_index)#, second_max_index)
-    # print(primeira_geracao)
+    flag_peso_aleatorio_ruim = False
+    if aux <= 3.2:
+        flag_peso_aleatorio_ruim = True # Pesos ruins
+        redes, primeira_geracao = selecao_natural(first_max_index, flag_peso_aleatorio_ruim)#, second_max_index)
+    else:
+        redes, primeira_geracao = selecao_natural(first_max_index)
+
     main(geracao+1, primeira_geracao, redes)
 
     # pontos = 0
