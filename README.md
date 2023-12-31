@@ -35,7 +35,7 @@ Para isso foi necessário primeiro recriar o jogo do Flappy Bird e depois implem
 </br> Para observar a IA em treinamento, execute o arquivo:
 
 ```sh
-  & python main.py
+  $ python main.py
 ```
 
 Alguns detalhes que utilizei para esta implementação: </br>
