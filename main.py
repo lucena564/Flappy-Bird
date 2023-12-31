@@ -330,7 +330,7 @@ def main(primeira_geracao=True, redes=None):
                 remover_canos.append(cano)
 
         if adicionar_cano:
-            pontos += 1.0
+            pontos += 1
             canos.append(Cano(600))
 
             # Olhar aq
@@ -357,7 +357,7 @@ def main(primeira_geracao=True, redes=None):
 
 
     # Suspeita que esses pontos estão ficando ordenados no vetor, porque? 
-    # print("Pontuações dos Passaros:", [f"{item[0]:.2f}" for item in passaros_save])
+    print("Pontuações dos Passaros:", [f"{item[0]:.2f}" for item in passaros_save])
     # print("Pontuações dos Passaros:", [f"{value:.2f}" for value in pontos_passaros])
     # print("Número de Redes:", len(passaros_save))
 
@@ -370,6 +370,9 @@ def main(primeira_geracao=True, redes=None):
     for item in passaros_save:
         if item[0] > maior:
             first_max_index = item[1]
+            aux = item[0]
+
+    print("Peguei a pontuação: ", aux)
         # else:
         #    if item[0] > segundo_maior:
         #        second_max_index = item[1]

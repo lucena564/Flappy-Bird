@@ -31,7 +31,7 @@ class Neuronio:
             # preciso criar um dicionário para guardar os meus pesos.
             self.peso = {}
             for i in range(anterior):
-                self.peso[f"{i}"] = np.random.uniform(-1000, 1000)
+                self.peso[f"{i}"] = np.random.uniform(-100, 100)
 
         self.sensor = None
         self.bias = np.random.uniform(-30, 30)
@@ -115,9 +115,9 @@ def selecao_natural(rede1, qtd=100):
     # qtd -= 1
     # novos.append(rede2)
     # qtd -= 2
-    for i in range(qtd_novos1):
+    for i in range(100):
         # Criar novas redes a partir da rede1
-        nova_rede = rede1  # Copia a rede1
+        nova_rede = deepcopy(rede1)  # Copia a rede1
 
         # Quero acessar os pesos de nova_rede e mudar eles aleatoriamente.
         for i in range(nova_rede.qtd_camada_escondida):  # 4 - Camada Escondida
@@ -128,17 +128,19 @@ def selecao_natural(rede1, qtd=100):
                     positivo_ou_negativo = randint(0, 1)
                     if positivo_ou_negativo == 0:
                         porcentagem_de_mudanca = -porcentagem_de_mudanca
-                    nova_rede.camada_escondida.neuronios[i].peso[chave_pesos] = nova_rede.camada_escondida.neuronios[i].peso[chave_pesos] + porcentagem_de_mudanca / 100
+                    nova_rede.camada_escondida.neuronios[i].peso[chave_pesos] = nova_rede.camada_escondida.neuronios[i].peso[chave_pesos] + (nova_rede.camada_escondida.neuronios[i].peso[chave_pesos])*porcentagem_de_mudanca / 100
 
-        novos.append(nova_rede)
+        # novos.append(nova_rede)
 
         # Preciso criar um laço que mude o bias dos neurônios da camada escondida
         for i in range(nova_rede.qtd_camada_escondida):
-            porcentagem_de_mudanca = randint(0, 100)
+            porcentagem_de_mudanca = randint(0, 15)
             positivo_ou_negativo = randint(0, 1)
             if positivo_ou_negativo == 0:
                 porcentagem_de_mudanca = -porcentagem_de_mudanca
-            nova_rede.camada_escondida.neuronios[i].bias = nova_rede.camada_escondida.neuronios[i].bias + porcentagem_de_mudanca / 100
+            nova_rede.camada_escondida.neuronios[i].bias = nova_rede.camada_escondida.neuronios[i].bias + (nova_rede.camada_escondida.neuronios[i].bias)*(porcentagem_de_mudanca / 100)
+
+        novos.append(nova_rede)
 
     # Nessa etapa terei duas listas com novas redes, que são cópias das redes 1 e 2, porém com pesos aleatórios mudados um pouco.
     return novos, flag_primeira_geracao
