@@ -6,10 +6,9 @@ import time
 from IA_flappybird import *
 
 ia_jogando = True
-geracao = 0
 
 TELA_LARGURA = 500
-TELA_ALTURA = 800
+TELA_ALTURA = 900
 
 # Carregando as imagens que utilizaremos no jogo
 IMAGEM_CANO = pygame.transform.scale2x(pygame.image.load(os.path.join('imgs', 'pipe.png')))
@@ -42,6 +41,17 @@ class Passaro:
                        # S = S0 + V0 * t +- (a*t²)/2
         self.contagem_imagem = 0 # Saber qual imagem estou utilizando.
         self.imagem = self.IMGS[0]
+
+        self.pontos = 0.0 # Pontos para cada passaro.
+        self.vivo = True
+
+    def pontuar(self, pontos):
+        total = 0
+        total = self.pontos + pontos
+        return total
+
+    def morreu(self):
+        return not self.vivo
 
     def pular(self):
         self.velocidade = -10.5
@@ -167,7 +177,7 @@ class Chao:
         tela.blit(self.IMAGEM, (self.x1, self.y))
         tela.blit(self.IMAGEM, (self.x2, self.y))
 
-def desenhar_tela(tela, passaros, canos, chao, pontos):
+def desenhar_tela(tela, passaros, canos, chao, pontos, geracao=0):
     tela.blit(IMAGEM_BG, (0, 0))
     for passaro in passaros:
         passaro.desenhar(tela)
@@ -187,17 +197,21 @@ def desenhar_tela(tela, passaros, canos, chao, pontos):
 def main(primeira_geracao=True, redes=None):
     # Talvez isso vá para uma função
     ############################################################
+    # geracao = 0
     if primeira_geracao:
         if ia_jogando:
+            # geracao = 0
             redes = []
             passaros = []
+            passaros_save = []
             pontos_passaros = []
-            passaro_time = []
             for i in range(100):
                 rede = RedeNeural(3, 5, 1)
                 redes.append(rede.copy())
+                posicao_x = random.randint(30, 230)
+                posicao_y = random.randint(200, 500)
+                passaros.append(Passaro(posicao_x, posicao_y+30))
                 pontos_passaros.append(0)
-                passaros.append(Passaro(230, 350))
 
             # print("Pontuações dos Passaros antes:", [f"{valor:.2f}" for valor in pontos_passaros])
 
@@ -207,13 +221,17 @@ def main(primeira_geracao=True, redes=None):
     else:
         if ia_jogando:
             passaros = []
+            passaros_save = []
+
+            # Testar
             pontos_passaros = []
             passaro_time = []
             for i in range(100):
-                # rede = RedeNeural(3, 5, 1)
-                # redes.append(rede.copy())
-                pontos_passaros.append(0)
-                passaros.append(Passaro(230, 350))
+                # passaros.append(Passaro(230, 350))
+                # Quero sortear um numero entre 200 e 300
+                posicao_x = random.randint(30, 230)
+                posicao_y = random.randint(200, 500)
+                passaros.append(Passaro(posicao_x, posicao_y+30))
 
             # print("Pontuações dos Passaros antes:", [f"{valor:.2f}" for valor in pontos_passaros])
 
@@ -228,10 +246,8 @@ def main(primeira_geracao=True, redes=None):
     relogio = pygame.time.Clock()
     ############################################################
     rodando = True
-    
+    # geracao += 1
     while rodando:
-        inicio_iteracao = time.time()
-
         relogio.tick(30)
 
         # interação com o usuário
@@ -258,73 +274,113 @@ def main(primeira_geracao=True, redes=None):
 
         # Tomada de decisão dos passaros
         for i, passaro in enumerate(passaros):
-            passaro.mover()
-            # Aumentar um pouco a fitness do passaro
-            pontos_passaros[i] += 0.1 # Não faz sentido adicionar ponto aq, vai adicionar pra todo passaralho
+            # Só quero fazer isso para os passaros que estão vivos.
+            if passaro.vivo:
+                passaro.mover()
+                passaro.pontos = passaro.pontuar(0.1)
 
-            # Passando a leitura dos sensores
-            redes[i].set_sensores(passaro.y, abs(passaro.y - canos[indicie_cano].altura), abs(passaro.y - canos[indicie_cano].pos_base))
-            
-            output = redes[i].predict()
-            # -1 e 1 -> se o output for > 0.5 ent o passaro pula
-            if output > 0.5:
-                passaro.pular()
+                # ----------------------------- TESTANDO ISSO AQ -----------------------------
+                # # Adicione o código da penalidade proporcional aqui
+                # altura_media = (canos[indicie_cano].altura + canos[indicie_cano].pos_base) / 2
+                # distancia_media = abs(passaro.y - altura_media)
+                # penalidade_proporcional = 0.1*(distancia_media / TELA_ALTURA)  # Normalizar para o tamanho da tela
+                #
+                # # Aplicar penalidade aos pontos do passaro
+                # passaro.pontos -= penalidade_proporcional
+                # ----------------------------------------------------------------------------
 
-            parcial_passaro = time.time()
-            tempo_decorrido = parcial_passaro - inicio_iteracao
+                # pontos_passaros[i] += 0.1
 
-            chao.mover()
+                # Passando a leitura dos sensores
+                redes[i].set_sensores(passaro.y, abs(passaro.y - canos[indicie_cano].altura), abs(passaro.y - canos[indicie_cano].pos_base))
+
+                output = redes[i].predict()
+
+                if output > 0.5:
+                    passaro.pular()
+
+                chao.mover()
 
         # Vamos dar pontos aqui
         adicionar_cano = False
         remover_canos = []
+
         for cano in canos:
             for i, passaro in enumerate(passaros):
                 if cano.colidir(passaro):
+                    passaro.morreu()
+
+                    # Salvo os pontos do passaro que morreu e também a rede dele.
+                    passaros_save.append([passaro.pontos, redes[i].copy()])
+
                     passaros.pop(i)
+                    redes.pop(i)
+
                     if ia_jogando:
-                        pontos_passaros[i] -= 1
-                        # passaros.pop(i)
-                        # redes.pop(i)
+                        if passaro.vivo:
+                            passaro.pontos = passaro.pontuar(-1)
+
                 if not cano.passou and passaro.x > cano.x:
                     cano.passou = True
                     adicionar_cano = True
+
             cano.mover()
+
             if cano.x + cano.CANO_TOPO.get_width() < 0:
                 remover_canos.append(cano)
 
         if adicionar_cano:
-            pontos += 1.
+            pontos += 1.0
             canos.append(Cano(600))
-            for i in range(len(pontos_passaros)):
-                pontos_passaros[i] += 5
+
+            # Olhar aq
+            for i, passaro in enumerate(passaros):
+                if passaro.vivo:
+                    passaro.pontos = passaro.pontuar(5)
+                    # pontos_passaros[i] += 5
 
         for cano in remover_canos:
             canos.remove(cano)
 
         for i, passaro in enumerate(passaros):
             if (passaro.y + passaro.imagem.get_height()) > chao.y or passaro.y < 0:
-                passaros.pop(i) # Remover o passaro - Verificar se ta certo
+                if ia_jogando:
+                    passaro.pontos = passaro.pontuar(-2)
+                    passaros_save.append([passaro.pontos, redes[i].copy()])
+                    passaros.pop(i)
+                    redes.pop(i)
+                    passaro.morreu()
 
-        # Preciso dar a pontuação do tempo decorrido e também da distância à boca do pilar.
 
-        # Preciso criar uma função que vai criar os novos passaros, a partir dos dois melhores.
-                # Uma vez que eu tiver os dois melhores, eu preciso criar uma função que vai gerar os novos passaros.
-                # Os novos passaros vão ser gerados mudando os pesos dos dois melhores passaros. Porém será uma mudança aleatória.
-                # 10% de chance de mudar o peso de um neurônio.
-                # Sua mudança pode variar de -10% a 10%
+        desenhar_tela(tela, passaros, canos, chao, pontos) # , geracao)
+        #
 
-        desenhar_tela(tela, passaros, canos, chao, pontos)
 
     # Suspeita que esses pontos estão ficando ordenados no vetor, porque? 
-    # print("Pontuações dos Passaros:", [f"{valor:.2f}" for valor in pontos_passaros])
-    # print("Número de Redes:", len(redes))
+    # print("Pontuações dos Passaros:", [f"{item[0]:.2f}" for item in passaros_save])
+    # print("Pontuações dos Passaros:", [f"{value:.2f}" for value in pontos_passaros])
+    # print("Número de Redes:", len(passaros_save))
 
-    first_max_index = max(range(len(pontos_passaros)), key=pontos_passaros.__getitem__)
-    second_max_index = max((i for i, value in enumerate(pontos_passaros) if i != first_max_index), key=pontos_passaros.__getitem__)
+    maior = 0
+    # segundo_maior = 0
+    # second_max_index = RedeNeural(3, 5, 1)
+    first_max_index = RedeNeural(3, 5, 1)
 
-    redes, primeira_geracao = selecao_natural(redes[first_max_index], redes[second_max_index])
+    # Problema
+    for item in passaros_save:
+        if item[0] > maior:
+            first_max_index = item[1]
+        # else:
+        #    if item[0] > segundo_maior:
+        #        second_max_index = item[1]
+
+    redes, primeira_geracao = selecao_natural(first_max_index)#, second_max_index)
+    # print(primeira_geracao)
     main(primeira_geracao, redes)
+
+    pontos = 0
+    desenhar_tela(tela, passaros, canos, chao, pontos)# , geracao)
+
 
 
 if __name__ == '__main__':
