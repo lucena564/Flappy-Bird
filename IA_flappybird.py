@@ -109,11 +109,11 @@ def selecao_natural(rede1, flag_peso_aleatorio_ruim=False, qtd=100):
         # qtd_novos3 = qtd - (qtd_novos1 + qtd_novos2)
 
         novos = []
-        # novos.append(rede1)
+        novos.append(rede1)
         # qtd -= 1
         # novos.append(rede2)
         # qtd -= 2
-        for i in range(100):
+        for i in range(99):
             # Criar novas redes a partir da rede1
             nova_rede = deepcopy(rede1)  # Copia a rede1
 
