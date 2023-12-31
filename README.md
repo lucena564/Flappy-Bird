@@ -3,33 +3,52 @@
 <p align="center">
   <a href="https://github.com/lucena564/Flappy-Bird/blob/main/images_gifs_readme/Flappy-Bird-gif.gif">
     <img src="https://github.com/lucena564/Flappy-Bird/raw/main/images_gifs_readme/Flappy-Bird-gif.gif" alt="GIF do Flappy Bird" height="300">
+  </a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/lucena564/Flappy-Bird/blob/main/images_gifs_readme/flappy_bird_ponto_alto.gif">
+    <img src="https://github.com/lucena564/Flappy-Bird/raw/main/images_gifs_readme/flappy_bird_ponto_alto.gif" alt="GIF do Flappy Bird - Ponto Alto" height="300">
   </a>
 </p>
 
-Sempre quis por em prática conceitos que são aprendidos durante o estudo na área de aprendzagem de máquina. </br>
+Sempre almejei colocar em prática os conceitos adquiridos durante meus estudos na área de aprendizado de máquina. </br>
 
-Decidi criar uma Multilayer Perceptron para aprender a jogar o jogo do flappy bird. </br>
+Decidi desenvolver uma Multilayer Perceptron para aprender a jogar o Flappy Bird. </br>
 
 Para isso foi necessário primeiro recriar o jogo do Flappy Bird e depois implementar uma perceptron. 
 
-</br>Para jogar o jogo por si só basta rodar o arquivo:</br>
+</br>Para jogar o jogo por conta própria, basta executar o arquivo:</br>
 ```sh
   $ python flappy_bird_jogo.py
-               
-               ou
+```
 
+ ou    
+
+```sh
   $ python3 flappy_bird_jogo.py
 ```
 
-</br>A IA foi toda implementada no arquivo: </br>
+</br>A inteligência artificial foi completamente implementada no arquivo:
+
 ```sh
   IA_flappybird.py
 ```
 
-</br> Para observar a IA treinando basta rodar o arquivo: </br>
+</br> Para observar a IA em treinamento, execute o arquivo:
+
 ```sh
   & python main.py
 ```
 
-Depois de um tempo treinando teremos esse resultado:
+Alguns detalhes que utilizei para esta implementação: </br>
+* Utilização de 3 sensores para a camada de entrada. </br>
+* 5 neurônios para a camada oculta e 1 neurônio para a camada de saída.</br>
+* O Bias presente na camanda escondida e de saída.</br>
+* Função de ativação ReLu para todos os neurônios da camada oculta.</br>
+* Função de ativação tangente hiperbólica para a camada de saída.</br></br>
 
+Algumas tarefas que farei no futuro:</br>
+- [ ] Investigar o motivo de alguns pesos gerarem passaros que vão para full para cima e outros para baixo.
+- [ ] Implementar uma estrutura que cria e deixa visível a estrutura da IA (camada de entrada, camada escondida e a camada de saída).
+- [ ] Tirar todos os hard coded que deixei.
+- [ ] Criar uma lib minha que cria uma nova rede de acordo com o input (x, y, z), sendo x a camada de entrada e y a camada de saída.
+- [ ] Determinar a pontuação máxima para parar o treinamento e salvar os pesos. Além disso, criar uma função para carregar os pesos da IA treinada deixando a opção para jogar contra a IA.
+- [ ] Verificar e estudar, mostrando um relatório do impacto das diferentes funções de ativações, nas diferentes camadas.
