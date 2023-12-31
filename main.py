@@ -194,13 +194,11 @@ def desenhar_tela(tela, passaros, canos, chao, pontos, geracao=0):
     chao.desenhar(tela)
     pygame.display.update()
 
-def main(primeira_geracao=True, redes=None):
+def main(geracao, primeira_geracao=True, redes=None):
     # Talvez isso vá para uma função
     ############################################################
-    # geracao = 0
     if primeira_geracao:
         if ia_jogando:
-            # geracao = 0
             redes = []
             passaros = []
             passaros_save = []
@@ -352,9 +350,7 @@ def main(primeira_geracao=True, redes=None):
                     passaro.morreu()
 
 
-        desenhar_tela(tela, passaros, canos, chao, pontos) # , geracao)
-        #
-
+        desenhar_tela(tela, passaros, canos, chao, pontos, geracao)
 
     # Suspeita que esses pontos estão ficando ordenados no vetor, porque? 
     print("Pontuações dos Passaros:", [f"{item[0]:.2f}" for item in passaros_save])
@@ -379,12 +375,13 @@ def main(primeira_geracao=True, redes=None):
 
     redes, primeira_geracao = selecao_natural(first_max_index)#, second_max_index)
     # print(primeira_geracao)
-    main(primeira_geracao, redes)
+    main(geracao+1, primeira_geracao, redes)
 
-    pontos = 0
-    desenhar_tela(tela, passaros, canos, chao, pontos)# , geracao)
+    # pontos = 0
+    desenhar_tela(tela, passaros, canos, chao, pontos, geracao)
 
 
 
 if __name__ == '__main__':
-    main()
+    geracao = 0
+    main(geracao)
