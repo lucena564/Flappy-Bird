@@ -269,18 +269,6 @@ def main(geracao, flag_primeira_geracao=True, redes=None):
                         for passaro in passaros:
                             passaro.pular()
 
-        # Dessa forma os passaros olhavam sempre para o mesmo cano, se o primeiro passasse e os outros n
-        # o algorítmo considerava que todos eles passaram e ai tinha a colisão.
-
-        # indicie_cano = 0
-        # if len(passaros) > 0:
-        #     # Descobrir qual cano olhar
-        #     if len(canos) > 1 and passaros[0].x > (canos[0].x + canos[0].CANO_TOPO.get_width()):
-        #         indicie_cano = 1
-        # else:
-        #     rodando = False
-        #     break
-
         # Descobrir qual cano olhar para cada pássaro - IMPORTANTE FIXED
         indicies_canos = [0] * len(passaros)
 
@@ -300,7 +288,6 @@ def main(geracao, flag_primeira_geracao=True, redes=None):
                 passaro.pontos = passaro.pontuar(0.1)
 
                 # Passando a leitura dos sensores
-                # redes[i].set_sensores(passaro.y, (abs(passaro.y - canos[indicie_cano].altura) - abs(passaro.y - canos[indicie_cano].pos_base))/2, ((abs(passaro.y - canos[indicie_cano].altura) - abs(passaro.y - canos[indicie_cano].pos_base))/2) - passaro.y )
                 redes[i].set_sensores(passaro.y, (abs(passaro.y - canos[indicies_canos[i]].altura) - abs(passaro.y - canos[indicies_canos[i]].pos_base)) / 2, ((abs(passaro.y - canos[indicies_canos[i]].altura) - abs(passaro.y - canos[indicies_canos[i]].pos_base)) / 2) - passaro.y)
                 output = redes[i].predict()
 
@@ -334,7 +321,7 @@ def main(geracao, flag_primeira_geracao=True, redes=None):
                         # if passaro.vivo:
                         passaro.pontos = passaro.pontuar(-1)
 
-                if not cano.passou and passaro.x > cano.x:
+                if not cano.passou and 340 > cano.x:
                     cano.passou = True
                     adicionar_cano = True
 
@@ -398,6 +385,7 @@ def main(geracao, flag_primeira_geracao=True, redes=None):
     flag_peso_aleatorio_ruim = False
     # flag_min_local = False
     if aux1 <= 3.2:
+        print("Pesos ruins, nova inicialização aleatória.")
         flag_peso_aleatorio_ruim = True # Pesos ruins
         redes, flag_primeira_geracao = selecao_natural(first_max_index, second_max_index, flag_peso_aleatorio_ruim) #, second_max_index)
     # elif 3.2 < aux1 <= 12.2:

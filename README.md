@@ -1,11 +1,11 @@
 # Flappy-Bird com IA </br>
 
 <p align="center">
-  <a href="https://github.com/lucena564/Flappy-Bird/blob/main/images_gifs_readme/Flappy-Bird-gif.gif">
-    <img src="https://github.com/lucena564/Flappy-Bird/raw/main/images_gifs_readme/Flappy-Bird-gif.gif" alt="GIF do Flappy Bird" height="300">
+  <a href="https://github.com/lucena564/Flappy-Bird/blob/main/images_gifs_readme/1 File to readme.gif">
+    <img src="https://github.com/lucena564/Flappy-Bird/raw/main/images_gifs_readme/1 File to readme.gif" alt="GIF do Flappy Bird" height="300">
   </a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <a href="https://github.com/lucena564/Flappy-Bird/blob/main/images_gifs_readme/flappy_bird_ponto_alto.gif">
-    <img src="https://github.com/lucena564/Flappy-Bird/raw/main/images_gifs_readme/flappy_bird_ponto_alto.gif" alt="GIF do Flappy Bird - Ponto Alto" height="300">
+  <a href="https://github.com/lucena564/Flappy-Bird/blob/main/images_gifs_readme/2 File to readme.gif">
+    <img src="https://github.com/lucena564/Flappy-Bird/raw/main/images_gifs_readme/2 File to readme.gif" alt="GIF do Flappy Bird - Ponto Alto" height="300">
   </a>
 </p>
 
