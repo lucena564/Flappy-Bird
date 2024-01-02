@@ -9,7 +9,7 @@
   </a>
 </p>
 
-Sempre almejei colocar em prática os conceitos adquiridos durante meus estudos na área de aprendizado de máquina. </br>
+Sempre quis colocar em prática os conceitos adquiridos durante meus estudos na área de aprendizado de máquina. </br>
 
 Decidi desenvolver uma Multilayer Perceptron para aprender a jogar o Flappy Bird. </br>
 
@@ -47,6 +47,7 @@ Alguns detalhes que utilizei para esta implementação: </br>
 
 Algumas tarefas que farei no futuro:</br>
 - [x] Adicionar um requirements.txt
+- [x] Organizar o sensor de cada pássaro para a movimentação correta
 - [ ] Investigar o motivo de alguns pesos gerarem passaros que vão para full para cima e outros para baixo.
 - [ ] Implementar uma estrutura que cria e deixa visível a estrutura da IA (camada de entrada, camada escondida e a camada de saída).
 - [ ] Tirar todos os hard coded que deixei.
