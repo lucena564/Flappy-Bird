@@ -7,13 +7,13 @@ from IA_flappybird import *
 
 ia_jogando = True
 
-TELA_LARGURA = 500
+TELA_LARGURA = 650
 TELA_ALTURA = 750
 
 # Carregando as imagens que utilizaremos no jogo
 IMAGEM_CANO = pygame.transform.scale2x(pygame.image.load(os.path.join('imgs', 'pipe.png')))
-IMAGEM_CHAO = pygame.transform.scale2x(pygame.image.load(os.path.join('imgs', 'base.png')))
-IMAGEM_BG = pygame.transform.scale2x(pygame.image.load(os.path.join('imgs', 'bg.png')))
+IMAGEM_CHAO = pygame.transform.scale2x(pygame.image.load(os.path.join('imgs', 'base650.png')))
+IMAGEM_BG = pygame.transform.scale2x(pygame.image.load(os.path.join('imgs', 'bg650.png')))
 IMAGEM_PASSARO = [
     pygame.transform.scale2x(pygame.image.load(os.path.join('imgs', 'bird1.png'))),
     pygame.transform.scale2x(pygame.image.load(os.path.join('imgs', 'bird2.png'))),
@@ -247,8 +247,7 @@ def main(geracao, flag_primeira_geracao=True, redes=None):
             return
 
     chao = Chao(730)
-    # Era 700
-    canos = [Cano(600)]
+    canos = [Cano(700)]
     tela = pygame.display.set_mode((TELA_LARGURA, TELA_ALTURA))
     pontos = 0
     relogio = pygame.time.Clock()
@@ -308,7 +307,7 @@ def main(geracao, flag_primeira_geracao=True, redes=None):
                 if output > 0.5:
                     passaro.pular()
 
-            chao.mover()
+        chao.mover()
 
         # Vamos dar pontos aqui
         adicionar_cano = False
@@ -346,7 +345,7 @@ def main(geracao, flag_primeira_geracao=True, redes=None):
 
         if adicionar_cano:
             pontos += 1
-            canos.append(Cano(600))
+            canos.append(Cano(700))
 
             # Olhar aq
             for i, passaro in enumerate(passaros):
@@ -397,9 +396,14 @@ def main(geracao, flag_primeira_geracao=True, redes=None):
     print("A pontuação do segundo: ", aux2)
 
     flag_peso_aleatorio_ruim = False
+    # flag_min_local = False
     if aux1 <= 3.2:
         flag_peso_aleatorio_ruim = True # Pesos ruins
         redes, flag_primeira_geracao = selecao_natural(first_max_index, second_max_index, flag_peso_aleatorio_ruim) #, second_max_index)
+    # elif 3.2 < aux1 <= 12.2:
+    #     flag_peso_aleatorio_ruim = True # Pesos ruins
+    #     flag_min_local = True
+    #     redes, flag_primeira_geracao = selecao_natural(first_max_index, second_max_index, flag_peso_aleatorio_ruim) #, second_max_index)
     else:
         redes, flag_primeira_geracao = selecao_natural(first_max_index, second_max_index)
 

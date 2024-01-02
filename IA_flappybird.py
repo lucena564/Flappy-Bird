@@ -124,7 +124,7 @@ def selecao_natural(rede1, rede2, flag_peso_aleatorio_ruim=False, qtd=200):
                     for chave_pesos in nova_rede.camada_escondida.neuronios[i].peso:
                         chance_mudanca = randint(0, 10)
                         if chance_mudanca != 0:
-                            porcentagem_de_mudanca = randint(0, 10)
+                            porcentagem_de_mudanca = randint(0, 30)
                             positivo_ou_negativo = randint(0, 1)
                             if positivo_ou_negativo == 0:
                                 porcentagem_de_mudanca = -porcentagem_de_mudanca
@@ -134,7 +134,7 @@ def selecao_natural(rede1, rede2, flag_peso_aleatorio_ruim=False, qtd=200):
 
             # Preciso criar um laço que mude o bias dos neurônios da camada escondida
             for i in range(nova_rede.qtd_camada_escondida):
-                porcentagem_de_mudanca = randint(0, 5)
+                porcentagem_de_mudanca = randint(0, 50)
                 positivo_ou_negativo = randint(0, 1)
                 if positivo_ou_negativo == 0:
                     porcentagem_de_mudanca = -porcentagem_de_mudanca
@@ -153,7 +153,7 @@ def selecao_natural(rede1, rede2, flag_peso_aleatorio_ruim=False, qtd=200):
                     for chave_pesos in nova_rede.camada_escondida.neuronios[i].peso:
                         chance_mudanca = randint(0, 10)
                         if chance_mudanca != 0:
-                            porcentagem_de_mudanca = randint(0, 15)
+                            porcentagem_de_mudanca = randint(0, 45)
                             positivo_ou_negativo = randint(0, 1)
                             if positivo_ou_negativo == 0:
                                 porcentagem_de_mudanca = -porcentagem_de_mudanca
@@ -163,7 +163,7 @@ def selecao_natural(rede1, rede2, flag_peso_aleatorio_ruim=False, qtd=200):
 
             # Preciso criar um laço que mude o bias dos neurônios da camada escondida
             for i in range(nova_rede.qtd_camada_escondida):
-                porcentagem_de_mudanca = randint(0, 15)
+                porcentagem_de_mudanca = randint(0, 70)
                 positivo_ou_negativo = randint(0, 1)
                 if positivo_ou_negativo == 0:
                     porcentagem_de_mudanca = -porcentagem_de_mudanca
