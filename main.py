@@ -199,7 +199,7 @@ def desenhar_tela(tela, passaros, canos, chao, pontos, geracao=0):
         cano.desenhar(tela)
 
     texto = FONTE_PONTOS.render(f"Score: {pontos}", 1, (255, 255, 255))
-    tela.blit(texto, (TELA_LARGURA - 10 - texto.get_width(), 10))
+    tela.blit(texto, (TELA_LARGURA - 100 - texto.get_width(), 10))
 
     if ia_jogando:
         texto = FONTE_PONTOS.render(f"Geração: {geracao}", 1, (255, 255, 255))
