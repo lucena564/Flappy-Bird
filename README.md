@@ -48,7 +48,7 @@ Alguns detalhes que utilizei para esta implementação: </br>
 Algumas tarefas que farei no futuro:</br>
 - [x] Adicionar um requirements.txt
 - [x] Organizar o sensor de cada pássaro para a movimentação correta
-- [ ] Investigar o motivo de alguns pesos gerarem passaros que vão para full para cima e outros para baixo.
+- [x] Investigar o motivo de alguns pesos gerarem passaros que vão para full para cima e outros para baixo.
 - [ ] Implementar uma estrutura que cria e deixa visível a estrutura da IA (camada de entrada, camada escondida e a camada de saída).
 - [ ] Tirar todos os hard coded que deixei.
 - [ ] Criar uma lib minha que cria uma nova rede de acordo com o input (x, y, z), sendo x a camada de entrada e y a camada de saída.
