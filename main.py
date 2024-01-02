@@ -8,7 +8,7 @@ from IA_flappybird import *
 ia_jogando = True
 
 TELA_LARGURA = 500
-TELA_ALTURA = 900
+TELA_ALTURA = 750
 
 # Carregando as imagens que utilizaremos no jogo
 IMAGEM_CANO = pygame.transform.scale2x(pygame.image.load(os.path.join('imgs', 'pipe.png')))
@@ -131,6 +131,20 @@ class Cano:
         self.pos_topo = self.altura - self.CANO_TOPO.get_height()
         self.pos_base = self.altura + self.DISTANCIA
 
+    # Testando func
+    def calcular_pontos(self, bird):
+        centro_cano_x = self.x + self.CANO_TOPO.get_width() / 2
+        centro_cano_y = (self.altura + self.pos_base) / 2
+        raio_de_influencia = 50  # Ajuste conforme necessário
+
+        distancia_ao_centro = ((bird.x - centro_cano_x)**2 + (bird.y - centro_cano_y)**2)**0.5
+
+        # Ajuste a fórmula para dar mais peso à distância ao centro
+        pontos_colisao = 5 * (bird.y - (abs(bird.y - self.altura) + abs(bird.y - self.pos_base)) / 2) / TELA_ALTURA
+        pontos_colisao *= max(0, 1 - (distancia_ao_centro / raio_de_influencia)**2)  # Ajuste o expoente conforme necessário
+
+        return pontos_colisao
+
     def mover(self):
         self.x -= self.VELOCIDADE
 
@@ -194,24 +208,26 @@ def desenhar_tela(tela, passaros, canos, chao, pontos, geracao=0):
     chao.desenhar(tela)
     pygame.display.update()
 
-def main(geracao, primeira_geracao=True, redes=None):
-    # Talvez isso vá para uma função
-    ############################################################
-    if primeira_geracao:
-        if ia_jogando:
-            redes = []
-            passaros = []
-            passaros_save = []
-            pontos_passaros = []
-            for i in range(100):
-                rede = RedeNeural(3, 5, 1)
-                redes.append(rede.copy())
-                posicao_x = random.randint(30, 230)
-                posicao_y = random.randint(200, 500)
-                passaros.append(Passaro(posicao_x, posicao_y+30))
-                pontos_passaros.append(0)
+def primeira_geracao():
+    redes = []
+    passaros = []
+    flag_primeira_geracao = False
 
-            # print("Pontuações dos Passaros antes:", [f"{valor:.2f}" for valor in pontos_passaros])
+    for i in range(100):
+        rede = RedeNeural(3, 5, 1)
+        redes.append(rede.copy())
+        posicao_x = random.randint(0, 350)
+        posicao_y = random.randint(200, 530)
+        passaros.append(Passaro(posicao_x, posicao_y))
+        # passaros.append(Passaro(230, 350))
+
+    return redes, passaros, flag_primeira_geracao
+
+def main(geracao, flag_primeira_geracao=True, redes=None):
+    if flag_primeira_geracao:
+        if ia_jogando:
+            passaros_save = []
+            redes, passaros, flag_primeira_geracao = primeira_geracao()
 
         else:
             passaros = [Passaro(230, 350)]
@@ -220,31 +236,24 @@ def main(geracao, primeira_geracao=True, redes=None):
         if ia_jogando:
             passaros = []
             passaros_save = []
-
-            # Testar
-            pontos_passaros = []
-            passaro_time = []
             for i in range(100):
+                posicao_x = random.randint(0, 350)
+                posicao_y = random.randint(200, 530)
+                passaros.append(Passaro(posicao_x, posicao_y))
                 # passaros.append(Passaro(230, 350))
-                # Quero sortear um numero entre 200 e 300
-                posicao_x = random.randint(30, 230)
-                posicao_y = random.randint(200, 500)
-                passaros.append(Passaro(posicao_x, posicao_y+30))
-
-            # print("Pontuações dos Passaros antes:", [f"{valor:.2f}" for valor in pontos_passaros])
 
         else:
             print("\nNão implementado ainda, prestar atenção nas gerações, linha 223")
             return
 
     chao = Chao(730)
-    canos = [Cano(700)]
+    # Era 700
+    canos = [Cano(600)]
     tela = pygame.display.set_mode((TELA_LARGURA, TELA_ALTURA))
     pontos = 0
     relogio = pygame.time.Clock()
-    ############################################################
     rodando = True
-    # geracao += 1
+
     while rodando:
         relogio.tick(30)
 
@@ -261,12 +270,26 @@ def main(geracao, primeira_geracao=True, redes=None):
                         for passaro in passaros:
                             passaro.pular()
 
-        indicie_cano = 0
-        if len(passaros) > 0:
-            # Descobrir qual cano olhar
-            if len(canos) > 1 and passaros[0].x > (canos[0].x + canos[0].CANO_TOPO.get_width()):
-                indicie_cano = 1
-        else:
+        # Dessa forma os passaros olhavam sempre para o mesmo cano, se o primeiro passasse e os outros n
+        # o algorítmo considerava que todos eles passaram e ai tinha a colisão.
+
+        # indicie_cano = 0
+        # if len(passaros) > 0:
+        #     # Descobrir qual cano olhar
+        #     if len(canos) > 1 and passaros[0].x > (canos[0].x + canos[0].CANO_TOPO.get_width()):
+        #         indicie_cano = 1
+        # else:
+        #     rodando = False
+        #     break
+
+        # Descobrir qual cano olhar para cada pássaro - IMPORTANTE FIXED
+        indicies_canos = [0] * len(passaros)
+
+        for i, passaro in enumerate(passaros):
+            if len(canos) > (indicies_canos[i] + 1) and passaro.x > (canos[indicies_canos[i]].x + canos[indicies_canos[i]].CANO_TOPO.get_width()):
+                indicies_canos[i] += 1
+
+        if all(not passaro.vivo for passaro in passaros):
             rodando = False
             break
 
@@ -277,27 +300,15 @@ def main(geracao, primeira_geracao=True, redes=None):
                 passaro.mover()
                 passaro.pontos = passaro.pontuar(0.1)
 
-                # ----------------------------- TESTANDO ISSO AQ -----------------------------
-                # # Adicione o código da penalidade proporcional aqui
-                # altura_media = (canos[indicie_cano].altura + canos[indicie_cano].pos_base) / 2
-                # distancia_media = abs(passaro.y - altura_media)
-                # penalidade_proporcional = 0.1*(distancia_media / TELA_ALTURA)  # Normalizar para o tamanho da tela
-                #
-                # # Aplicar penalidade aos pontos do passaro
-                # passaro.pontos -= penalidade_proporcional
-                # ----------------------------------------------------------------------------
-
-                # pontos_passaros[i] += 0.1
-
                 # Passando a leitura dos sensores
-                redes[i].set_sensores(passaro.y, abs(passaro.y - canos[indicie_cano].altura), abs(passaro.y - canos[indicie_cano].pos_base))
-
+                # redes[i].set_sensores(passaro.y, (abs(passaro.y - canos[indicie_cano].altura) - abs(passaro.y - canos[indicie_cano].pos_base))/2, ((abs(passaro.y - canos[indicie_cano].altura) - abs(passaro.y - canos[indicie_cano].pos_base))/2) - passaro.y )
+                redes[i].set_sensores(passaro.y, (abs(passaro.y - canos[indicies_canos[i]].altura) - abs(passaro.y - canos[indicies_canos[i]].pos_base)) / 2, ((abs(passaro.y - canos[indicies_canos[i]].altura) - abs(passaro.y - canos[indicies_canos[i]].pos_base)) / 2) - passaro.y)
                 output = redes[i].predict()
 
                 if output > 0.5:
                     passaro.pular()
 
-                chao.mover()
+            chao.mover()
 
         # Vamos dar pontos aqui
         adicionar_cano = False
@@ -306,6 +317,12 @@ def main(geracao, primeira_geracao=True, redes=None):
         for cano in canos:
             for i, passaro in enumerate(passaros):
                 if cano.colidir(passaro):
+                    # Dar a pontuação de acordo com a proximidade do passaro com o cano
+                    if ia_jogando:
+                        # pontos_colisao = 3*(passaro.y - (abs(passaro.y - canos[indicies_canos[i]].altura) + abs(passaro.y - canos[indicies_canos[i]].pos_base))/2) / TELA_ALTURA
+                        pontos_colisao = -1000*canos[indicies_canos[i]].calcular_pontos(passaro)
+                        passaro.pontos = passaro.pontuar(pontos_colisao)
+                    
                     passaro.morreu()
 
                     # Salvo os pontos do passaro que morreu e também a rede dele.
@@ -315,8 +332,8 @@ def main(geracao, primeira_geracao=True, redes=None):
                     redes.pop(i)
 
                     if ia_jogando:
-                        if passaro.vivo:
-                            passaro.pontos = passaro.pontuar(-1)
+                        # if passaro.vivo:
+                        passaro.pontos = passaro.pontuar(-1)
 
                 if not cano.passou and passaro.x > cano.x:
                     cano.passou = True
@@ -335,7 +352,6 @@ def main(geracao, primeira_geracao=True, redes=None):
             for i, passaro in enumerate(passaros):
                 if passaro.vivo:
                     passaro.pontos = passaro.pontuar(5)
-                    # pontos_passaros[i] += 5
 
         for cano in remover_canos:
             canos.remove(cano)
@@ -354,35 +370,43 @@ def main(geracao, primeira_geracao=True, redes=None):
 
     # Suspeita que esses pontos estão ficando ordenados no vetor, porque? 
     print("Pontuações dos Passaros:", [f"{item[0]:.2f}" for item in passaros_save])
-    # print("Pontuações dos Passaros:", [f"{value:.2f}" for value in pontos_passaros])
     # print("Número de Redes:", len(passaros_save))
 
     maior = 0
-    # segundo_maior = 0
-    # second_max_index = RedeNeural(3, 5, 1)
+    segundo_maior = 0
+    second_max_index = RedeNeural(3, 5, 1)
     first_max_index = RedeNeural(3, 5, 1)
+    aux1 = 0
+    aux2 = 0
+    primeiro = True
 
     # Problema
     for item in passaros_save:
         if item[0] > maior:
-            first_max_index = item[1]
-            aux = item[0]
+            if primeiro:
+                first_max_index = item[1]
+                aux1 = item[0]
+                primeiro = False
+            else:
+                second_max_index = first_max_index
+                aux2 = aux1
+                first_max_index = item[1]
+                aux1 = item[0]
 
-    print("Peguei a pontuação: ", aux)
+    print("A pontuação do primeiro: ", aux1)
+    print("A pontuação do segundo: ", aux2)
 
     flag_peso_aleatorio_ruim = False
-    if aux <= 3.2:
+    if aux1 <= 3.2:
         flag_peso_aleatorio_ruim = True # Pesos ruins
-        redes, primeira_geracao = selecao_natural(first_max_index, flag_peso_aleatorio_ruim)#, second_max_index)
+        redes, flag_primeira_geracao = selecao_natural(first_max_index, second_max_index, flag_peso_aleatorio_ruim) #, second_max_index)
     else:
-        redes, primeira_geracao = selecao_natural(first_max_index)
+        redes, flag_primeira_geracao = selecao_natural(first_max_index, second_max_index)
 
-    main(geracao+1, primeira_geracao, redes)
+    main(geracao+1, flag_primeira_geracao, redes)
 
     # pontos = 0
     desenhar_tela(tela, passaros, canos, chao, pontos, geracao)
-
-
 
 if __name__ == '__main__':
     geracao = 0

@@ -94,7 +94,7 @@ class RedeNeural:
             return 0
 
 
-def selecao_natural(rede1, flag_peso_aleatorio_ruim=False, qtd=100):
+def selecao_natural(rede1, rede2, flag_peso_aleatorio_ruim=False, qtd=200):
     flag_primeira_geracao = False
 
     # Se o peso aleatório criado for ruim = True
@@ -104,16 +104,16 @@ def selecao_natural(rede1, flag_peso_aleatorio_ruim=False, qtd=100):
 
         # Uma vez que eu tiver os dois melhores, eu preciso criar uma função que vai gerar os novos passaros.
         # Os novos passaros vão ser gerados mudando os pesos dos dois melhores passaros. Porém será uma mudança aleatória.
-        qtd_novos1 = qtd  # // 2
-        qtd_novos2 = qtd - qtd_novos1
+        qtd_novos1 = qtd // 2
+        qtd_novos2 = qtd - qtd_novos1 - 2
         # qtd_novos3 = qtd - (qtd_novos1 + qtd_novos2)
 
         novos = []
         novos.append(rede1)
         # qtd -= 1
-        # novos.append(rede2)
+        novos.append(rede2)
         # qtd -= 2
-        for i in range(99):
+        for i in range(qtd_novos1):
             # Criar novas redes a partir da rede1
             nova_rede = deepcopy(rede1)  # Copia a rede1
 
@@ -122,11 +122,42 @@ def selecao_natural(rede1, flag_peso_aleatorio_ruim=False, qtd=100):
                 for j in range(nova_rede.qtd_sensores):      # 3 - Camada de Entrada - Sensores
                     # Quero interar sob a chave de pesos do dicionario peso
                     for chave_pesos in nova_rede.camada_escondida.neuronios[i].peso:
-                        porcentagem_de_mudanca = randint(0, 100)
-                        positivo_ou_negativo = randint(0, 1)
-                        if positivo_ou_negativo == 0:
-                            porcentagem_de_mudanca = -porcentagem_de_mudanca
-                        nova_rede.camada_escondida.neuronios[i].peso[chave_pesos] = nova_rede.camada_escondida.neuronios[i].peso[chave_pesos] + (nova_rede.camada_escondida.neuronios[i].peso[chave_pesos])*porcentagem_de_mudanca / 100
+                        chance_mudanca = randint(0, 10)
+                        if chance_mudanca != 0:
+                            porcentagem_de_mudanca = randint(0, 10)
+                            positivo_ou_negativo = randint(0, 1)
+                            if positivo_ou_negativo == 0:
+                                porcentagem_de_mudanca = -porcentagem_de_mudanca
+                            nova_rede.camada_escondida.neuronios[i].peso[chave_pesos] = nova_rede.camada_escondida.neuronios[i].peso[chave_pesos] + (nova_rede.camada_escondida.neuronios[i].peso[chave_pesos])*porcentagem_de_mudanca / 100
+
+            # novos.append(nova_rede)
+
+            # Preciso criar um laço que mude o bias dos neurônios da camada escondida
+            for i in range(nova_rede.qtd_camada_escondida):
+                porcentagem_de_mudanca = randint(0, 5)
+                positivo_ou_negativo = randint(0, 1)
+                if positivo_ou_negativo == 0:
+                    porcentagem_de_mudanca = -porcentagem_de_mudanca
+                nova_rede.camada_escondida.neuronios[i].bias = nova_rede.camada_escondida.neuronios[i].bias + (nova_rede.camada_escondida.neuronios[i].bias)*(porcentagem_de_mudanca / 100)
+
+            novos.append(nova_rede)
+
+        for i in range(qtd_novos2):
+            # Criar novas redes a partir da rede1
+            nova_rede = deepcopy(rede2)  # Copia a rede1
+
+            # Quero acessar os pesos de nova_rede e mudar eles aleatoriamente.
+            for i in range(nova_rede.qtd_camada_escondida):  # 4 - Camada Escondida
+                for j in range(nova_rede.qtd_sensores):      # 3 - Camada de Entrada - Sensores
+                    # Quero interar sob a chave de pesos do dicionario peso
+                    for chave_pesos in nova_rede.camada_escondida.neuronios[i].peso:
+                        chance_mudanca = randint(0, 10)
+                        if chance_mudanca != 0:
+                            porcentagem_de_mudanca = randint(0, 15)
+                            positivo_ou_negativo = randint(0, 1)
+                            if positivo_ou_negativo == 0:
+                                porcentagem_de_mudanca = -porcentagem_de_mudanca
+                            nova_rede.camada_escondida.neuronios[i].peso[chave_pesos] = nova_rede.camada_escondida.neuronios[i].peso[chave_pesos] + (nova_rede.camada_escondida.neuronios[i].peso[chave_pesos])*porcentagem_de_mudanca / 100
 
             # novos.append(nova_rede)
 
