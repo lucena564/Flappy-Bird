@@ -51,6 +51,6 @@ Algumas tarefas que farei no futuro:</br>
 - [x] Investigar o motivo de alguns pesos gerarem passaros que vão para full para cima e outros para baixo.
 - [ ] Implementar uma estrutura que cria e deixa visível a estrutura da IA (camada de entrada, camada escondida e a camada de saída).
 - [ ] Tirar todos os hard coded que deixei.
-- [ ] Criar uma lib minha que cria uma nova rede de acordo com o input (x, y, z), sendo x a camada de entrada e y a camada de saída.
+- [ ] Criar uma lib para criar uma nova configuração de rede com o input (x, y, z), sendo x a camada de entrada e y a camada de saída.
 - [ ] Determinar a pontuação máxima para parar o treinamento e salvar os pesos. Além disso, criar uma função para carregar os pesos da IA treinada deixando a opção para jogar contra a IA.
 - [ ] Verificar e estudar, mostrando um relatório do impacto das diferentes funções de ativações, nas diferentes camadas.
