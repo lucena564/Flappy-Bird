@@ -170,6 +170,7 @@ class Cano:
         self.x -= self.VELOCIDADE
 
         # Movimentação vertical
+        self.VELOCIDADE_VERTICAL = random.uniform(1, 2.5)
         self.y += self.VELOCIDADE_VERTICAL * self.direcao_vertical
 
         # Atualizando as posições dos canos
