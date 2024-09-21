@@ -117,9 +117,13 @@ class Passaro:
             # Coordenadas do topo e base do cano
             topo = (cano_atual.x + cano_atual.CANO_TOPO.get_width() // 2, cano_atual.pos_topo + cano_atual.CANO_TOPO.get_height())
             base = (cano_atual.x + cano_atual.CANO_TOPO.get_width() // 2, cano_atual.pos_base)
+            chao = (self.x + self.imagem.get_width() // 2, TELA_ALTURA)
 
             # Coordenadas do centro do pássaro
             centro_passaro = (self.x + self.imagem.get_width() // 2, self.y + self.imagem.get_height() // 2)
+
+            # Desenhar uma linha que entra perpendicular ao chão na cor verde
+            pygame.draw.line(tela, (0, 255, 0), centro_passaro, chao, 2)
 
             # Desenhar linha do sensor para o topo
             pygame.draw.line(tela, (255, 0, 0), centro_passaro, topo, 2)  # Vermelho para o topo
