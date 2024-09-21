@@ -109,24 +109,13 @@ class Passaro:
         retangulo = imagem_rotacionada.get_rect(center=pos_centro_imagem)
         tela.blit(imagem_rotacionada, retangulo.topleft)
 
-        # # Sensores
-        # distancia_sensor = 100  # Defina o comprimento dos sensores
-
-        # sensor1 = (self.x + distancia_sensor, self.y)  # Sensor para a direita (horizontal)
-        # sensor2 = (self.x + distancia_sensor, self.y - distancia_sensor)  # Sensor para cima (diagonal)
-        # sensor3 = (self.x + distancia_sensor, self.y + distancia_sensor)  # Sensor para baixo (diagonal)
-
-        # # Desenhar as linhas dos sensores
-        # pygame.draw.line(tela, (255, 0, 0), (self.x, self.y), sensor1, 2)  # Vermelho
-        # pygame.draw.line(tela, (0, 255, 0), (self.x, self.y), sensor2, 2)  # Verde
-        # pygame.draw.line(tela, (0, 0, 255), (self.x, self.y), sensor3, 2)  # Azul
-         # Desenhar sensores visuais conectados ao cano atual
+        # Desenhar sensores visuais conectados ao cano atual
         if self.vivo:
             # Posição do cano atual
             cano_atual = cano
-            # Coordenadas do topo, centro e base do cano
+
+            # Coordenadas do topo e base do cano
             topo = (cano_atual.x + cano_atual.CANO_TOPO.get_width() // 2, cano_atual.pos_topo + cano_atual.CANO_TOPO.get_height())
-            centro = (cano_atual.x + cano_atual.CANO_TOPO.get_width() // 2, (cano_atual.pos_topo + cano_atual.pos_base) // 2)
             base = (cano_atual.x + cano_atual.CANO_TOPO.get_width() // 2, cano_atual.pos_base)
 
             # Coordenadas do centro do pássaro
@@ -134,8 +123,7 @@ class Passaro:
 
             # Desenhar linha do sensor para o topo
             pygame.draw.line(tela, (255, 0, 0), centro_passaro, topo, 2)  # Vermelho para o topo
-            # Desenhar linha do sensor para o centro
-            # pygame.draw.line(tela, (0, 255, 0), centro_passaro, centro, 2)  # Verde para o centro
+
             # Desenhar linha do sensor para a base
             pygame.draw.line(tela, (0, 0, 255), centro_passaro, base, 2)   # Azul para a base
 
