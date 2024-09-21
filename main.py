@@ -82,7 +82,7 @@ class Passaro:
             if self.angulo > -60:
                 self.angulo -= self.VEL_ROTACAO
 
-    def desenhar(self, tela):
+    def desenhar(self, tela, cano):
         # Definir qual imagem o passaro vai usar
         self.contagem_imagem += 1
 
@@ -109,16 +109,36 @@ class Passaro:
         retangulo = imagem_rotacionada.get_rect(center=pos_centro_imagem)
         tela.blit(imagem_rotacionada, retangulo.topleft)
 
-            # Sensores
-        distancia_sensor = 100  # Defina o comprimento dos sensores
-        sensor1 = (self.x + distancia_sensor, self.y)  # Sensor para a direita (horizontal)
-        sensor2 = (self.x + distancia_sensor, self.y - distancia_sensor)  # Sensor para cima (diagonal)
-        sensor3 = (self.x + distancia_sensor, self.y + distancia_sensor)  # Sensor para baixo (diagonal)
+        # # Sensores
+        # distancia_sensor = 100  # Defina o comprimento dos sensores
 
-        # Desenhar as linhas dos sensores
-        pygame.draw.line(tela, (255, 0, 0), (self.x, self.y), sensor1, 2)  # Vermelho
-        pygame.draw.line(tela, (0, 255, 0), (self.x, self.y), sensor2, 2)  # Verde
-        pygame.draw.line(tela, (0, 0, 255), (self.x, self.y), sensor3, 2)  # Azul
+        # sensor1 = (self.x + distancia_sensor, self.y)  # Sensor para a direita (horizontal)
+        # sensor2 = (self.x + distancia_sensor, self.y - distancia_sensor)  # Sensor para cima (diagonal)
+        # sensor3 = (self.x + distancia_sensor, self.y + distancia_sensor)  # Sensor para baixo (diagonal)
+
+        # # Desenhar as linhas dos sensores
+        # pygame.draw.line(tela, (255, 0, 0), (self.x, self.y), sensor1, 2)  # Vermelho
+        # pygame.draw.line(tela, (0, 255, 0), (self.x, self.y), sensor2, 2)  # Verde
+        # pygame.draw.line(tela, (0, 0, 255), (self.x, self.y), sensor3, 2)  # Azul
+         # Desenhar sensores visuais conectados ao cano atual
+        if self.vivo:
+            # Posição do cano atual
+            cano_atual = cano
+            # Coordenadas do topo, centro e base do cano
+            topo = (cano_atual.x + cano_atual.CANO_TOPO.get_width() // 2, cano_atual.pos_topo + cano_atual.CANO_TOPO.get_height())
+            centro = (cano_atual.x + cano_atual.CANO_TOPO.get_width() // 2, (cano_atual.pos_topo + cano_atual.pos_base) // 2)
+            base = (cano_atual.x + cano_atual.CANO_TOPO.get_width() // 2, cano_atual.pos_base)
+
+            # Coordenadas do centro do pássaro
+            centro_passaro = (self.x + self.imagem.get_width() // 2, self.y + self.imagem.get_height() // 2)
+
+            # Desenhar linha do sensor para o topo
+            pygame.draw.line(tela, (255, 0, 0), centro_passaro, topo, 2)  # Vermelho para o topo
+            # Desenhar linha do sensor para o centro
+            # pygame.draw.line(tela, (0, 255, 0), centro_passaro, centro, 2)  # Verde para o centro
+            # Desenhar linha do sensor para a base
+            pygame.draw.line(tela, (0, 0, 255), centro_passaro, base, 2)   # Azul para a base
+
 
     def get_mask(self):
         return pygame.mask.from_surface(self.imagem)
@@ -218,10 +238,14 @@ class Chao:
         tela.blit(self.IMAGEM, (self.x1, self.y))
         tela.blit(self.IMAGEM, (self.x2, self.y))
 
-def desenhar_tela(tela, passaros, canos, chao, pontos, geracao=0):
+def desenhar_tela(tela, passaros, canos, chao, pontos, geracao=0, indicies_canos=None):
     tela.blit(IMAGEM_BG, (0, 0))
-    for passaro in passaros:
-        passaro.desenhar(tela)
+
+    for i, passaro in enumerate(passaros):
+        if passaro.vivo:
+            cano_atual = canos[indicies_canos[i]]  # O cano que o pássaro está "vendo"
+            passaro.desenhar(tela, cano_atual)
+
     for cano in canos:
         cano.desenhar(tela)
 
@@ -296,12 +320,16 @@ def main(geracao, flag_primeira_geracao=True, redes=None):
                         for passaro in passaros:
                             passaro.pular()
 
-        # Descobrir qual cano olhar para cada pássaro - IMPORTANTE FIXED
+        # Descobrir qual cano olhar para cada pássaro
         indicies_canos = [0] * len(passaros)
 
         for i, passaro in enumerate(passaros):
-            if len(canos) > (indicies_canos[i] + 1) and passaro.x > (canos[indicies_canos[i]].x + canos[indicies_canos[i]].CANO_TOPO.get_width()):
+            # Incrementa o índice se o pássaro passou do cano atual
+            while (indicies_canos[i] < len(canos) - 1 and 
+                passaro.x > (canos[indicies_canos[i]].x + canos[indicies_canos[i]].CANO_TOPO.get_width())):
                 indicies_canos[i] += 1
+
+        # desenhar_tela(tela, passaros, canos, chao, pontos, indicies_canos, geracao)
 
         if all(not passaro.vivo for passaro in passaros):
             rodando = False
@@ -379,7 +407,9 @@ def main(geracao, flag_primeira_geracao=True, redes=None):
                     passaro.morreu()
 
 
-        desenhar_tela(tela, passaros, canos, chao, pontos, geracao)
+        desenhar_tela(tela, passaros, canos, chao, pontos, geracao, indicies_canos)
+
+        # desenhar_tela(tela, passaros, canos, chao, pontos, geracao)
 
     # Suspeita que esses pontos estão ficando ordenados no vetor, porque? 
     print("Pontuações dos Passaros:", [f"{item[0]:.2f}" for item in passaros_save])
@@ -425,7 +455,7 @@ def main(geracao, flag_primeira_geracao=True, redes=None):
     main(geracao+1, flag_primeira_geracao, redes)
 
     # pontos = 0
-    desenhar_tela(tela, passaros, canos, chao, pontos, geracao)
+    desenhar_tela(tela, passaros, canos, chao, pontos, indicies_canos, geracao)
 
 if __name__ == '__main__':
     geracao = 0
