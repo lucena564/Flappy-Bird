@@ -109,6 +109,17 @@ class Passaro:
         retangulo = imagem_rotacionada.get_rect(center=pos_centro_imagem)
         tela.blit(imagem_rotacionada, retangulo.topleft)
 
+            # Sensores
+        distancia_sensor = 100  # Defina o comprimento dos sensores
+        sensor1 = (self.x + distancia_sensor, self.y)  # Sensor para a direita (horizontal)
+        sensor2 = (self.x + distancia_sensor, self.y - distancia_sensor)  # Sensor para cima (diagonal)
+        sensor3 = (self.x + distancia_sensor, self.y + distancia_sensor)  # Sensor para baixo (diagonal)
+
+        # Desenhar as linhas dos sensores
+        pygame.draw.line(tela, (255, 0, 0), (self.x, self.y), sensor1, 2)  # Vermelho
+        pygame.draw.line(tela, (0, 255, 0), (self.x, self.y), sensor2, 2)  # Verde
+        pygame.draw.line(tela, (0, 0, 255), (self.x, self.y), sensor3, 2)  # Azul
+
     def get_mask(self):
         return pygame.mask.from_surface(self.imagem)
 
