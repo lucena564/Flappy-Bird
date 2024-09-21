@@ -115,12 +115,15 @@ class Passaro:
 class Cano:
     DISTANCIA = 200
     VELOCIDADE = 5
+    VELOCIDADE_VERTICAL = 2  # Velocidade no eixo Y
 
     def __init__(self, x):
         self.x = x
+        self.y = 0  # Posição inicial no eixo Y
         self.altura = 0
         self.pos_topo = 0
         self.pos_base = 0
+        self.direcao_vertical = 1  # 1 para baixo, -1 para cima
         self.CANO_TOPO = pygame.transform.flip(IMAGEM_CANO, False, True)
         self.CANO_BASE = IMAGEM_CANO
         self.passou = False
@@ -131,32 +134,46 @@ class Cano:
         self.pos_topo = self.altura - self.CANO_TOPO.get_height()
         self.pos_base = self.altura + self.DISTANCIA
 
-    # Testando func
-    def calcular_pontos(self, bird):
-        centro_cano_x = self.x + self.CANO_TOPO.get_width() / 2
-        centro_cano_y = (self.altura + self.pos_base) / 2
-        raio_de_influencia = 50  # Ajuste conforme necessário
-
-        distancia_ao_centro = ((bird.x - centro_cano_x)**2 + (bird.y - centro_cano_y)**2)**0.5
-
-        # Ajuste a fórmula para dar mais peso à distância ao centro
-        pontos_colisao = 5 * (bird.y - (abs(bird.y - self.altura) + abs(bird.y - self.pos_base)) / 2) / TELA_ALTURA
-        pontos_colisao *= max(0, 1 - (distancia_ao_centro / raio_de_influencia)**2)  # Ajuste o expoente conforme necessário
-
-        return pontos_colisao
-
     def mover(self):
+        # Movimentação horizontal
         self.x -= self.VELOCIDADE
+
+        # Movimentação vertical
+        self.y += self.VELOCIDADE_VERTICAL * self.direcao_vertical
+
+        # Atualizando as posições dos canos
+        self.pos_topo += self.VELOCIDADE_VERTICAL * self.direcao_vertical
+        self.pos_base += self.VELOCIDADE_VERTICAL * self.direcao_vertical
+
+        # Inverte a direção vertical se atingir o topo ou a base da tela
+        if self.y <= 0 or self.y >= TELA_ALTURA - self.CANO_BASE.get_height():
+            self.direcao_vertical *= -1  # Inverte a direção
 
     def desenhar(self, tela):
         tela.blit(self.CANO_TOPO, (self.x, self.pos_topo))
         tela.blit(self.CANO_BASE, (self.x, self.pos_base))
+
+    def calcular_pontos(self, passaro):
+        # Calcula o centro do cano considerando o movimento vertical
+        centro_cano_x = self.x + self.CANO_TOPO.get_width() / 2
+        centro_cano_y = (self.pos_topo + self.pos_base) / 2
+        raio_de_influencia = 50  # Ajuste conforme necessário
+
+        # Distância entre o pássaro e o centro do cano
+        distancia_ao_centro = ((passaro.x - centro_cano_x)**2 + (passaro.y - centro_cano_y)**2)**0.5
+
+        # Calcula os pontos baseados na proximidade do pássaro ao cano
+        pontos_colisao = 5 * (passaro.y - (abs(passaro.y - self.altura) + abs(passaro.y - self.pos_base)) / 2) / TELA_ALTURA
+        pontos_colisao *= max(0, 1 - (distancia_ao_centro / raio_de_influencia)**2)  # Reduz os pontos se estiver fora do raio
+
+        return pontos_colisao
 
     def colidir(self, passaro):
         passaro_mask = passaro.get_mask()
         topo_mask = pygame.mask.from_surface(self.CANO_TOPO)
         base_mask = pygame.mask.from_surface(self.CANO_BASE)
 
+        # Calcula a distância levando em consideração a posição vertical (y)
         distancia_topo = (self.x - passaro.x, self.pos_topo - round(passaro.y))
         distancia_base = (self.x - passaro.x, self.pos_base - round(passaro.y))
 
@@ -165,8 +182,7 @@ class Cano:
 
         if base_ponto or topo_ponto:
             return True
-        else:
-            return False
+        return False
 
 class Chao:
     VELOCIDADE = 5
