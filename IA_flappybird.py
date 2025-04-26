@@ -10,8 +10,8 @@
 """
 
 from math import sqrt
-from random import randint
 import numpy as np
+import random         # <— importe o módulo, não só funções isoladas
 from copy import deepcopy
 
 
@@ -94,94 +94,79 @@ class RedeNeural:
             return 0
 
 
-def selecao_natural(rede1, rede2, flag_peso_aleatorio_ruim=False, qtd=200):
+def selecao_natural(rede1, rede2, flag_peso_aleatorio_ruim=False, qtd=100):
+    """
+    Rede1 e Rede2 são os dois melhores da geração.
+    Retorna: lista de 'qtd' redes para a próxima geração e flag_primeira_geracao=False.
+    """
+    novos = []
     flag_primeira_geracao = False
 
-    # Se o peso aleatório criado for ruim = True
-    if not flag_peso_aleatorio_ruim:
-        # Preciso criar uma função que vai criar os novos passaros, a partir dos dois melhores.
-        # Os melhores passaros são rede1 e rede2
+    # 1) Elitismo: pais originais
+    novos.append(rede1.copy())
+    novos.append(rede2.copy())
 
-        # Uma vez que eu tiver os dois melhores, eu preciso criar uma função que vai gerar os novos passaros.
-        # Os novos passaros vão ser gerados mudando os pesos dos dois melhores passaros. Porém será uma mudança aleatória.
-        qtd_novos1 = qtd // 2
-        qtd_novos2 = qtd - qtd_novos1 - 2
-        # qtd_novos3 = qtd - (qtd_novos1 + qtd_novos2)
+    # 2) Determine quantos filhos via crossover e quantos via mutação pura
+    n_crossover = qtd // 2 - 1   # metade menos 1 (já contei 2 pais)
+    n_mutacao1  = qtd // 4       # um quarto vindo de mutação de rede1
+    n_mutacao2  = qtd - 2 - n_crossover - n_mutacao1
 
+    def crossover_uniforme(p1, p2):
+        filho = deepcopy(p1)
+        for camada in ['camada_escondida', 'camada_saida']:
+            cp1 = getattr(p1, camada).neuronios
+            cp2 = getattr(p2, camada).neuronios
+            cf  = getattr(filho, camada).neuronios
+            for n1, n2, nf in zip(cp1, cp2, cf):
+                for chave in n1.peso:
+                    if random.random() < 0.5:          # aqui
+                        nf.peso[chave] = n1.peso[chave]
+                    else:
+                        nf.peso[chave] = n2.peso[chave]
+                nf.bias = n1.bias if random.random() < 0.5 else n2.bias  # e aqui
+        return filho
+
+    def mutacao_gaussiana(r, intensidade=0.1):
+        """Aplica ruído gaussiano proporcional nos pesos e bias."""
+        for camada in ['camada_escondida', 'camada_saida']:
+            for n in getattr(r, camada).neuronios:
+                for chave in n.peso:
+                    sigma = abs(n.peso[chave]) * intensidade
+                    n.peso[chave] += np.random.randn() * sigma
+                # bias
+                sigma_b = abs(n.bias) * intensidade
+                n.bias += np.random.randn() * sigma_b
+
+    # 3) Filhos por crossover
+    for _ in range(n_crossover):
+        filho = crossover_uniforme(rede1, rede2)
+        mutacao_gaussiana(filho, intensidade=0.05)  # pequena mutação pós-crossover
+        novos.append(filho)
+
+    # 4) Filhos por mutação pura de cada pai
+    for _ in range(n_mutacao1):
+        filho = deepcopy(rede1)
+        mutacao_gaussiana(filho, intensidade=0.2)
+        novos.append(filho)
+
+    for _ in range(n_mutacao2):
+        filho = deepcopy(rede2)
+        mutacao_gaussiana(filho, intensidade=0.2)
+        novos.append(filho)
+
+    # 5) Se os pais forem “ruins”, injetar algumas redes totalmente novas
+    if flag_peso_aleatorio_ruim:
+        n_novas = qtd  # 100% de novas
+        from IA_flappybird import RedeNeural
         novos = []
-        novos.append(rede1)
-        # qtd -= 1
-        novos.append(rede2)
-        # qtd -= 2
-        for i in range(qtd_novos1):
-            # Criar novas redes a partir da rede1
-            nova_rede = deepcopy(rede1)  # Copia a rede1
+        for _ in range(n_novas):
+            novos.append(RedeNeural(3, 5, 1))
 
-            # Quero acessar os pesos de nova_rede e mudar eles aleatoriamente.
-            for i in range(nova_rede.qtd_camada_escondida):  # 4 - Camada Escondida
-                for j in range(nova_rede.qtd_sensores):      # 3 - Camada de Entrada - Sensores
-                    # Quero interar sob a chave de pesos do dicionario peso
-                    for chave_pesos in nova_rede.camada_escondida.neuronios[i].peso:
-                        chance_mudanca = randint(0, 10)
-                        if chance_mudanca != 0:
-                            porcentagem_de_mudanca = randint(0, 30)
-                            positivo_ou_negativo = randint(0, 1)
-                            if positivo_ou_negativo == 0:
-                                porcentagem_de_mudanca = -porcentagem_de_mudanca
-                            nova_rede.camada_escondida.neuronios[i].peso[chave_pesos] = nova_rede.camada_escondida.neuronios[i].peso[chave_pesos] + (nova_rede.camada_escondida.neuronios[i].peso[chave_pesos])*porcentagem_de_mudanca / 100
-
-            # novos.append(nova_rede)
-
-            # Preciso criar um laço que mude o bias dos neurônios da camada escondida
-            for i in range(nova_rede.qtd_camada_escondida):
-                porcentagem_de_mudanca = randint(0, 50)
-                positivo_ou_negativo = randint(0, 1)
-                if positivo_ou_negativo == 0:
-                    porcentagem_de_mudanca = -porcentagem_de_mudanca
-                nova_rede.camada_escondida.neuronios[i].bias = nova_rede.camada_escondida.neuronios[i].bias + (nova_rede.camada_escondida.neuronios[i].bias)*(porcentagem_de_mudanca / 100)
-
-            novos.append(nova_rede)
-
-        for i in range(qtd_novos2):
-            # Criar novas redes a partir da rede1
-            nova_rede = deepcopy(rede2)  # Copia a rede1
-
-            # Quero acessar os pesos de nova_rede e mudar eles aleatoriamente.
-            for i in range(nova_rede.qtd_camada_escondida):  # 4 - Camada Escondida
-                for j in range(nova_rede.qtd_sensores):      # 3 - Camada de Entrada - Sensores
-                    # Quero interar sob a chave de pesos do dicionario peso
-                    for chave_pesos in nova_rede.camada_escondida.neuronios[i].peso:
-                        chance_mudanca = randint(0, 10)
-                        if chance_mudanca != 0:
-                            porcentagem_de_mudanca = randint(0, 45)
-                            positivo_ou_negativo = randint(0, 1)
-                            if positivo_ou_negativo == 0:
-                                porcentagem_de_mudanca = -porcentagem_de_mudanca
-                            nova_rede.camada_escondida.neuronios[i].peso[chave_pesos] = nova_rede.camada_escondida.neuronios[i].peso[chave_pesos] + (nova_rede.camada_escondida.neuronios[i].peso[chave_pesos])*porcentagem_de_mudanca / 100
-
-            # novos.append(nova_rede)
-
-            # Preciso criar um laço que mude o bias dos neurônios da camada escondida
-            for i in range(nova_rede.qtd_camada_escondida):
-                porcentagem_de_mudanca = randint(0, 70)
-                positivo_ou_negativo = randint(0, 1)
-                if positivo_ou_negativo == 0:
-                    porcentagem_de_mudanca = -porcentagem_de_mudanca
-                nova_rede.camada_escondida.neuronios[i].bias = nova_rede.camada_escondida.neuronios[i].bias + (nova_rede.camada_escondida.neuronios[i].bias)*(porcentagem_de_mudanca / 100)
-
-            novos.append(nova_rede)
-
-        # Nessa etapa terei duas listas com novas redes, que são cópias das redes 1 e 2, porém com pesos aleatórios mudados um pouco.
-
+    # 6) Ajuste final: se temos mais que qtd, corte; se menos, copie pais até chegar
+    if len(novos) > qtd:
+        novos = novos[:qtd]
     else:
-        passaros = []
-        novos = []
-
-        # Testar
-        pontos_passaros = []
-        passaro_time = []
-        for i in range(100):
-            novo = RedeNeural(3, 5, 1)
-            novos.append(novo)
+        while len(novos) < qtd:
+            novos.append(deepcopy(rede1))
 
     return novos, flag_primeira_geracao
